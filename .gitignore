@@ -1,3 +1,7 @@
+# solidity ignores
+.history
+reports/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
