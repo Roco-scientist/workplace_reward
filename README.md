@@ -2,8 +2,8 @@
 
 ## Solidity code to deploy to ethereum compatible blockchains
 
-[./solidity](Solidity code)
+[Solidity code](./solidity)
 
 ## Front end react app
 
-[./html](HTML code)
+[HTML code](./html)
