@@ -26,11 +26,12 @@ contract Swap is Ownable {
         return false;
     }
 
-    function send(uint256 amount, address toAddress) public {
+    function sendThanks(uint256 amount, address toAddress) public {
         require(addressSetup(msg.sender), "User not yet setup");
         require(addressSetup(toAddress), "Recipient not yet setup");
         require(ThanksContract.balanceOf(msg.sender) >= amount, "Not enough thank yous to send");
         require(RewardsContract.balanceOf(address(this)) >= amount, "Not enough rewards to give out");
+        require(msg.sender != toAddress, "You cannot thank yourself");
 
         ThanksContract.transferFrom(msg.sender, address(this), amount);
         RewardsContract.transferFrom(address(this), toAddress, amount);
