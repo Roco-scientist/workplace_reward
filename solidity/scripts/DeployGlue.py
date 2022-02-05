@@ -8,6 +8,7 @@ def deploy_token():
     glue = GlueToken.deploy({"from": account})
     print(f"Contract deployed to {glue.address}")
     print(f"There is a balance of {glue.balanceOf(account) / DECIMALS} tokens")
+    return glue
 
 def main():
     deploy_token()
