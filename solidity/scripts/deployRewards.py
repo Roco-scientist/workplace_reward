@@ -20,8 +20,8 @@ def deploy_thanks(supply: int, account):
     return thanks_contract
 
 
-def deploy_swap(account):
-    swap_contract = Swap.deploy({"from": account})
+def deploy_swap(account, rewards_contract, thanks_contract):
+    swap_contract = Swap.deploy(rewards_contract.address, thanks_contract.address, {"from": account})
     return swap_contract
 
 
@@ -40,5 +40,5 @@ def main():
     account = get_account()
     rewards_contract = deploy_rewards(supply, account)
     thanks_contract = deploy_thanks(supply, account)
-    swap_contract = deploy_swap(account)
+    swap_contract = deploy_swap(account, rewards_contract, thanks_contract)
     transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_contract)
