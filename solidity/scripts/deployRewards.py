@@ -31,7 +31,7 @@ def transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_cont
     )
     thanks_contract.transfer(swap_contract.address, thanks_contract.balanceOf(account))
     print(
-        f"Swap contract now contains {rewards_contract.balanceOf(swap_contract.address)} rewards and {thanks_contract.balanceOf(swap_contract.address)} thanks"
+        f"Swap contract now contains {rewards_contract.balanceOf(swap_contract.address) / DECIMALS} rewards and {thanks_contract.balanceOf(swap_contract.address) / DECIMALS} thanks"
     )
 
 
