@@ -1,5 +1,18 @@
 # contract code WORK IN PROGRESS
 
+## Requirements
+
+- python 3+
+- [pipx](https://pypa.github.io/pipx/installation/)
+- brownie
+  - `pipx install eth-brownie`
+- [Solidity compiler](https://docs.soliditylang.org/en/v0.8.11/installing-solidity.html)
+- [Ganache](https://trufflesuite.com/ganache/)
+
+## Compile Solidity Contracts
+
+`brownie compile`
+
 ## Deploy
 
 Create a .env file holding the private account address  
