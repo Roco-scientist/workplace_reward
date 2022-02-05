@@ -17,7 +17,7 @@
 
 Create a .env file holding the private account address  
   
-`brownie run ./scripts/DeployGlue.py --network mainnet`
+`brownie run ./scripts/deployRewards.py --network mainnet`
 
 
 ## Unit Tests
@@ -30,9 +30,9 @@ Tests found in [test folder](./tests)
 
 ### Locally on gnache
 
-`brownie run ./scripts/DeployGlue.py`
+`brownie run ./scripts/deployRewards.py`
 
 ### Other testnets
 
-`brownie run ./scripts/DeployGlue.py --network rinkebey`  
-`brownie run ./scripts/DeployGlue.py --network ropsten`
+`brownie run ./scripts/deployRewards.py --network rinkebey`  
+`brownie run ./scripts/deployRewards.py --network ropsten`
