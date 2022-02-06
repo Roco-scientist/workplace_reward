@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import "./RewardsToken.sol";
-// import "./ThankYouToken.sol";
 
 contract Swap is Ownable {
     ERC20 RewardsContract;
@@ -75,13 +73,19 @@ contract Swap is Ownable {
         }
     }
 
+    // Allow the ability to withdraw tokens that were not supposed to be deposited
+    function withdrawToken(address _tokenContract, uint256 _amount) public onlyOwner {
+        IERC20 tokenContract = IERC20(_tokenContract);
+        
+        // transfer the token from address of this contract
+        // to address of the user (executing the withdrawToken() function)
+        tokenContract.transfer(msg.sender, _amount);
+    }
+
     // Below functions are meant to allow funding of the contract in order to pay for gas etc.
     // Allow any crypto sent to the contract to be removed
-    function sendViaCall(address payable _to) public payable onlyOwner {
-        // Call returns a boolean value indicating success or failure.
-        // This is the current recommended method to use.
-        (bool sent, bytes memory data) = _to.call{value: msg.value}("");
-        require(sent, "Failed to send Ether");
+    function withdrawEth() public payable onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     // Function to receive Ether. msg.data must be empty
