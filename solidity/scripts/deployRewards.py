@@ -39,8 +39,11 @@ def run_all():
     supply = 10 ** 6 * DECIMALS
     account = get_account()
     rewards_contract = deploy_rewards(supply, account)
+    rewards_contract.wait(1)
     thanks_contract = deploy_thanks(supply, account)
+    thanks_contract.wait(1)
     swap_contract = deploy_swap(account, rewards_contract, thanks_contract)
+    swap_contract.wait(1)
     transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_contract)
     return swap_contract, rewards_contract, thanks_contract
 
