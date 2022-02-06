@@ -35,10 +35,15 @@ def transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_cont
     )
 
 
-def main():
+def run_all():
     supply = 10 ** 6 * DECIMALS
     account = get_account()
     rewards_contract = deploy_rewards(supply, account)
     thanks_contract = deploy_thanks(supply, account)
     swap_contract = deploy_swap(account, rewards_contract, thanks_contract)
     transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_contract)
+    return swap_contract, rewards_contract, thanks_contract
+
+
+def main():
+    run_all()

@@ -2,19 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./RewardsToken.sol";
-import "./ThankYouToken.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Swap is Ownable {
-    RewardsToken RewardsContract;
-    ThankYouToken ThanksContract;
+    ERC20 RewardsContract;
+    ERC20 ThanksContract;
     address[] validRecipientAddresses;
 
     event Sent(address _from, address _to, uint256 _amount);
 
     constructor(address _rewardsAddress, address _thanksAddress) public {
-        RewardsContract = RewardsToken(_rewardsAddress);
-        ThanksContract = ThankYouToken(_thanksAddress);
+        RewardsContract = ERC20(_rewardsAddress);
+        ThanksContract = ERC20(_thanksAddress);
     }
 
     // Adds user address to the contract.  This is to limit the addresses which can interact with the contract.  
@@ -48,7 +47,7 @@ contract Swap is Ownable {
         // Transfer the thank you token to the contract
         ThanksContract.transferFrom(msg.sender, address(this), amount);
         // Transfer the reward token to the thanked user
-        RewardsContract.transferFrom(address(this), toAddress, amount);
+        RewardsContract.transfer(toAddress, amount);
 
         emit Sent(msg.sender, toAddress, amount);
     }
@@ -70,17 +69,23 @@ contract Swap is Ownable {
         // Determine how many thank you tokens to send to each user, then iterate and send
         uint eachShare = ThanksContract.balanceOf(address(this)) / validRecipientAddresses.length;
         for (uint256 userIndex; userIndex < validRecipientAddresses.length; userIndex++) {
-            ThanksContract.transferFrom(address(this), validRecipientAddresses[userIndex], eachShare);
+            ThanksContract.transfer(validRecipientAddresses[userIndex], eachShare);
         }
+    }
+
+    // Allow the ability to withdraw tokens that were not supposed to be deposited
+    function withdrawToken(address _tokenContract, uint256 _amount) public onlyOwner {
+        IERC20 tokenContract = IERC20(_tokenContract);
+        
+        // transfer the token from address of this contract
+        // to address of the user (executing the withdrawToken() function)
+        tokenContract.transfer(msg.sender, _amount);
     }
 
     // Below functions are meant to allow funding of the contract in order to pay for gas etc.
     // Allow any crypto sent to the contract to be removed
-    function sendViaCall(address payable _to) public payable onlyOwner {
-        // Call returns a boolean value indicating success or failure.
-        // This is the current recommended method to use.
-        (bool sent, bytes memory data) = _to.call{value: msg.value}("");
-        require(sent, "Failed to send Ether");
+    function withdrawEth() public payable onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     // Function to receive Ether. msg.data must be empty
