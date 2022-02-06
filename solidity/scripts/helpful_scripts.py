@@ -11,6 +11,9 @@ def get_account():
 
         # Use ganache accounts
         return accounts[0]
+    if network.show_active() == "mainnet":
+        input("Make sure to run 'clef init'.  Press enter to continue")
+        return accounts.connect_to_clef()
     else:
         # with .env file and brownie-config.yaml
         # fix first
