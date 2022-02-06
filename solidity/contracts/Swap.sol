@@ -2,19 +2,20 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./RewardsToken.sol";
-import "./ThankYouToken.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// import "./RewardsToken.sol";
+// import "./ThankYouToken.sol";
 
 contract Swap is Ownable {
-    RewardsToken RewardsContract;
-    ThankYouToken ThanksContract;
+    ERC20 RewardsContract;
+    ERC20 ThanksContract;
     address[] validRecipientAddresses;
 
     event Sent(address _from, address _to, uint256 _amount);
 
     constructor(address _rewardsAddress, address _thanksAddress) public {
-        RewardsContract = RewardsToken(_rewardsAddress);
-        ThanksContract = ThankYouToken(_thanksAddress);
+        RewardsContract = ERC20(_rewardsAddress);
+        ThanksContract = ERC20(_thanksAddress);
     }
 
     // Adds user address to the contract.  This is to limit the addresses which can interact with the contract.  
@@ -48,7 +49,7 @@ contract Swap is Ownable {
         // Transfer the thank you token to the contract
         ThanksContract.transferFrom(msg.sender, address(this), amount);
         // Transfer the reward token to the thanked user
-        RewardsContract.transferFrom(address(this), toAddress, amount);
+        RewardsContract.transfer(toAddress, amount);
 
         emit Sent(msg.sender, toAddress, amount);
     }
@@ -70,7 +71,7 @@ contract Swap is Ownable {
         // Determine how many thank you tokens to send to each user, then iterate and send
         uint eachShare = ThanksContract.balanceOf(address(this)) / validRecipientAddresses.length;
         for (uint256 userIndex; userIndex < validRecipientAddresses.length; userIndex++) {
-            ThanksContract.transferFrom(address(this), validRecipientAddresses[userIndex], eachShare);
+            ThanksContract.transfer(validRecipientAddresses[userIndex], eachShare);
         }
     }
 
