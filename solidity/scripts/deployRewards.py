@@ -1,7 +1,7 @@
 from brownie import RewardsToken, ThankYouToken, Swap
 from scripts.helpful_scripts import get_account
 
-DECIMALS = 10 ** 18
+DECIMALS = 10 ** 2
 
 
 def deploy_rewards(supply: int, account):
