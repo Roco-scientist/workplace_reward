@@ -34,8 +34,8 @@ Tests found in [test folder](./tests)
 
 ### Other testnets
 
-`brownie run ./scripts/deployRewards.py --network rinkebey`  
-`brownie run ./scripts/deployRewards.py --network ropsten`
+`brownie run ./scripts/deployRewards.py --update_front_end --network rinkebey`  
+`brownie run ./scripts/deployRewards.py --update_front_end --network ropsten`
 
 ### Deployed  
 2022-02-07 on ropsten test network:  
@@ -44,4 +44,19 @@ Tests found in [test folder](./tests)
 - [Thank you token](https://ropsten.etherscan.io/address/0x131432D246122B94FeD14873C2c05A154EC93122)
 - [Reward token](https://ropsten.etherscan.io/address/0x808cF232F973CF0bBB480C27d476E6C5581bbC62)
   
-Deployment cost: 0.121760029128948 ($367) eth with gas at ~50 gwei
+Deployment cost: 0.121760029128948 ($367) eth with gas at ~50 gwei  
+  
+## Run front end
+
+Make sure that there has been at least one deployment and the --update_front_end flag on brownie run was called.  
+  
+### Locally
+
+```
+cd front_end
+yarn start
+```
+
+## Tip the creator
+
+send eth to: 0x30D4C0b1cBBa1A31F04d921fCA45eb0edDC7A367
