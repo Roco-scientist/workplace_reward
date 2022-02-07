@@ -2,18 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Swap is Ownable {
-    ERC20 RewardsContract;
-    ERC20 ThanksContract;
-    address[] validRecipientAddresses;
+    IERC20 public RewardsContract;
+    IERC20 public ThanksContract;
+    address[] public validRecipientAddresses;
 
-    event Sent(address _from, address _to, uint256 _amount);
+    event Sent(address indexed _from, address indexed _to, uint256 _amount);
 
     constructor(address _rewardsAddress, address _thanksAddress) public {
-        RewardsContract = ERC20(_rewardsAddress);
-        ThanksContract = ERC20(_thanksAddress);
+        RewardsContract = IERC20(_rewardsAddress);
+        ThanksContract = IERC20(_thanksAddress);
     }
 
     // Adds user address to the contract.  This is to limit the addresses which can interact with the contract.  
@@ -23,7 +23,7 @@ contract Swap is Ownable {
     }
 
     // Returns whether or not the user address has already been added to the contract
-    function addressSetup(address userAddress) public returns(bool) {
+    function addressSetup(address userAddress) public view returns(bool) {
         for (uint i=0; i < validRecipientAddresses.length; i++) {
             if (validRecipientAddresses[i] == userAddress) {
                 return true;
