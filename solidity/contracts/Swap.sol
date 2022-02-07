@@ -9,7 +9,7 @@ contract Swap is Ownable {
     IERC20 public ThanksContract;
     address[] public validRecipientAddresses;
 
-    event Sent(address _from, address _to, uint32 _amount);
+    event Sent(address indexed _from, address indexed _to, uint256 _amount);
 
     constructor(address _rewardsAddress, address _thanksAddress) public {
         RewardsContract = IERC20(_rewardsAddress);
@@ -33,7 +33,7 @@ contract Swap is Ownable {
     }
 
     // Function which takes in a thank you token and send a reward token to the user indicated
-    function sendThanks(uint32 amount, address toAddress) public {
+    function sendThanks(uint256 amount, address toAddress) public {
         // make sure both sender and receiver were already added to the contract
         require(addressSetup(msg.sender), "User not yet setup");
         require(addressSetup(toAddress), "Recipient not yet setup");
@@ -53,7 +53,7 @@ contract Swap is Ownable {
     }
 
     // Redeem tokens for awards.  This still needs work
-    function redeem(uint32 amount) public {
+    function redeem(uint256 amount) public {
         require(addressSetup(msg.sender), "User not yet setup");
         require(RewardsContract.balanceOf(msg.sender) >= amount, "Trying to redeem more rewards than you are holding");
 
@@ -68,13 +68,13 @@ contract Swap is Ownable {
 
         // Determine how many thank you tokens to send to each user, then iterate and send
         uint eachShare = ThanksContract.balanceOf(address(this)) / validRecipientAddresses.length;
-        for (uint32 userIndex; userIndex < validRecipientAddresses.length; userIndex++) {
+        for (uint256 userIndex; userIndex < validRecipientAddresses.length; userIndex++) {
             ThanksContract.transfer(validRecipientAddresses[userIndex], eachShare);
         }
     }
 
     // Allow the ability to withdraw tokens that were not supposed to be deposited
-    function withdrawToken(address _tokenContract, uint32 _amount) public onlyOwner {
+    function withdrawToken(address _tokenContract, uint256 _amount) public onlyOwner {
         IERC20 tokenContract = IERC20(_tokenContract);
         
         // transfer the token from address of this contract
