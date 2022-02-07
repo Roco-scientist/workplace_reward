@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Swap is Ownable {
-    IERC20 RewardsContract;
-    IERC20 ThanksContract;
-    address[] validRecipientAddresses;
+    IERC20 public RewardsContract;
+    IERC20 public ThanksContract;
+    address[] public validRecipientAddresses;
 
     event Sent(address _from, address _to, uint32 _amount);
 
@@ -23,7 +23,7 @@ contract Swap is Ownable {
     }
 
     // Returns whether or not the user address has already been added to the contract
-    function addressSetup(address userAddress) public returns(bool) {
+    function addressSetup(address userAddress) public view returns(bool) {
         for (uint i=0; i < validRecipientAddresses.length; i++) {
             if (validRecipientAddresses[i] == userAddress) {
                 return true;
