@@ -43,3 +43,5 @@ Tests found in [test folder](./tests)
 - [Swap](https://ropsten.etherscan.io/address/0xd9398D03794919215A2f7191e1FaBb4C9EeCBfdD)
 - [Thank you token](https://ropsten.etherscan.io/address/0x131432D246122B94FeD14873C2c05A154EC93122)
 - [Reward token](https://ropsten.etherscan.io/address/0x808cF232F973CF0bBB480C27d476E6C5581bbC62)
+  
+Deployment cost: 0.121760029128948 ($367) eth with gas at ~50 gwei
