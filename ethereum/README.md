@@ -59,4 +59,6 @@ yarn start
 
 ## Tip the creator
 
-send eth to: 0x30D4C0b1cBBa1A31F04d921fCA45eb0edDC7A367
+Send:  
+- Ether:
+  - 0x30D4C0b1cBBa1A31F04d921fCA45eb0edDC7A367
