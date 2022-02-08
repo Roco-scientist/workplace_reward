@@ -3,9 +3,8 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/system";
 
 const StyledHeader = styled("div")({
-  color: "aliceblue",
   padding: 8,
-  borderRadius: 4,
+  marginRight: "5%",
   display: "flex",
   justifyContent: "flex-end",
 });
@@ -18,11 +17,11 @@ export const Header = () => {
   return (
     <StyledHeader>
       {isConnected ? (
-        <Button variant="outlined" onClick={deactivate}>
+        <Button variant="contained" onClick={deactivate}>
           Disconnect
         </Button>
       ) : (
-        <Button variant="outlined" onClick={() => activateBrowserWallet()}>
+        <Button variant="contained" onClick={() => activateBrowserWallet()}>
           Connect
         </Button>
       )}

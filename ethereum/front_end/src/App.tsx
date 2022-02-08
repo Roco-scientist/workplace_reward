@@ -1,5 +1,4 @@
-import React from 'react';
-import { DAppProvider, Mainnet, Ropsten } from "@usedapp/core"
+import { DAppProvider, Ropsten } from "@usedapp/core"
 import { Header } from "./components/Header"
 import Container from "@mui/material/Container"
 import { Main } from "./components/Main"
