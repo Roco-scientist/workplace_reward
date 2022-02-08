@@ -6,6 +6,8 @@ const StyledHeader = styled("div")({
   color: "aliceblue",
   padding: 8,
   borderRadius: 4,
+  display: "flex",
+  justifyContent: "flex-end",
 });
 
 export const Header = () => {
@@ -16,11 +18,11 @@ export const Header = () => {
   return (
     <StyledHeader>
       {isConnected ? (
-        <Button variant="outlined" onClick={deactivate} sx={{mx: "auto"}}>
+        <Button variant="outlined" onClick={deactivate}>
           Disconnect
         </Button>
       ) : (
-        <Button variant="outlined" onClick={() => activateBrowserWallet()} sx={{mx: "auto"}}>
+        <Button variant="outlined" onClick={() => activateBrowserWallet()}>
           Connect
         </Button>
       )}
