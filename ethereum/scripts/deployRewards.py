@@ -1,15 +1,22 @@
 from brownie import RewardsToken, ThankYouToken, Swap
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, NETWORK_CONVERSIONS
 import yaml
 import json
 import argparse
+from pathlib import Path
+import shutil
 
 DECIMALS = 10 ** 2
 
 
 def arguments():
     parser = argparse.ArgumentParser(description="Deployment of worker rewards")
-    parser.add_argument("update_front_end", action="store_true", default=False, help="Update the front end with contract information")
+    parser.add_argument(
+        "update_front_end",
+        action="store_true",
+        default=False,
+        help="Update the front end with contract information",
+    )
     return parser.parse_args()
 
 
@@ -50,10 +57,9 @@ def transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_cont
 
 
 def update_front_end():
-    with open("brownie-config.yaml", "r") as brownie_config:
-        config_dict = yaml.load(brownie_config, Loader=yaml.FullLoader)
-        with open("./front_end/src/browie-config.json", "w") as brownie_config_json:
-            json.dump(config_dict, brownie_config_json)
+    front_end_map = Path("./front_end/src/contract_map.json")
+    contracts_map = Path("./build/deployments/map.json")
+    shutil.copy(contracts_map, front_end_map)
     print("Front end updated")
 
 
