@@ -11,7 +11,6 @@ const StyledBox = styled("div")({
   borderRadius: 4,
 });
 
-
 export const Main = () => {
   // set deploy number from the brownie deoploy.  Change this later
   const deployNumber = 1;
@@ -58,16 +57,16 @@ export const Main = () => {
 
   return (
     <StyledBox>
-      <Box sx={{ p: 2, border: "1px black" }}>
-        Current holdings {connected}
+      <Box sx={{ boxShadow: 3 }}>
+        <Box sx={{ p: 2, border: "1px black" }}>
+          Current holdings {connected}
+        </Box>
+        <Box sx={{ p: 2, border: "1px black" }}>
+          Thank you tokens: {thanksBalance}
+        </Box>
+        <Box sx={{ p: 2, border: "1px black" }}>Rewards: {rewardsBalance}</Box>
+        {Admin(account_address, swapAddress)}
       </Box>
-      <Box sx={{ p: 2, border: "1px black" }}>
-        Thank you tokens: {thanksBalance}
-      </Box>
-      <Box sx={{ p: 2, border: "1px black" }}>
-        Rewards: {rewardsBalance}
-      </Box>
-      {Admin(account_address, swapAddress)}
     </StyledBox>
   );
 };
@@ -78,7 +77,11 @@ const Admin = (account_address: string, swapAddress: string) => {
   if (admin_account) {
     return (
       <div>
-        <Box sx={{ p: 2, border: "1px black", backgroundColor: "primary.dark" }}>Admin stuff</Box>
+        <Box
+          sx={{ p: 2, border: "1px black", backgroundColor: "primary.dark" }}
+        >
+          Admin stuff
+        </Box>
       </div>
     );
   } else {
