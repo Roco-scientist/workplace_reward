@@ -3,14 +3,11 @@ import networkMapping from "../contract_map.json";
 import { constants } from "ethers";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
 
 const StyledBox = styled("div")({
-  color: "darkslategray",
-  backgroundColor: "aliceblue",
-  padding: 8,
   borderRadius: 4,
 });
 
@@ -66,16 +63,28 @@ export const Main = () => {
   return (
     <StyledBox>
       <Box sx={{ boxShadow: 3 }}>
-        <Box sx={{ p: 2, mx: "auto", fontSize: "h1.fontsize", fontWeight: "bold", textAlign: "center" }}>
+        <Box
+          sx={{
+            p: 2,
+            fontSize: "h1.fontsize",
+            fontWeight: "bold",
+            textAlign: "center",
+            backgroundColor: "primary.dark",
+            color: "white",
+          }}
+        >
           Current holdings {connected}
         </Box>
-        <List>
-        <ListItem>
-        <ListItemText primary="Thank you tokens" secondary={thanksBalance} />
-        </ListItem>
-        <ListItem>
-        <ListItemText primary="Reward tokens" secondary={rewardsBalance} />
-        </ListItem>
+        <List sx={{ backgroundColor:  "#e3f2fd" }}>
+          <ListItem>
+            <ListItemText
+              primary="Thank you tokens"
+              secondary={thanksBalance}
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText primary="Reward tokens" secondary={rewardsBalance} />
+          </ListItem>
         </List>
       </Box>
     </StyledBox>

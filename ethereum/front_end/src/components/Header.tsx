@@ -3,9 +3,8 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/system";
 
 const StyledHeader = styled("div")({
-  color: "aliceblue",
   padding: 8,
-  borderRadius: 4,
+  marginRight: "5%",
   display: "flex",
   justifyContent: "flex-end",
 });
