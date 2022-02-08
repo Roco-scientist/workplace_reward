@@ -12,7 +12,7 @@ function App() {
   return (
     <DAppProvider config={config}>
         <Header />
-        <Container maxWidth="lg">
+        <Container maxWidth="sm">
             <Main />
         </Container>
     </DAppProvider>
