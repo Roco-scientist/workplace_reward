@@ -7,10 +7,6 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 
-const StyledBox = styled("div")({
-  borderRadius: 4,
-});
-
 export const Main = () => {
   // set deploy number from the brownie deoploy.  Change this later
   const deployNumber = 1;
@@ -61,8 +57,8 @@ export const Main = () => {
   const rewardsBalance = rewardsBalance_start ? rewardsBalance_start : 0;
 
   return (
-    <StyledBox>
-      <Box sx={{ boxShadow: 3 }}>
+    <div>
+      <Box sx={{ boxShadow: 3, backgroundColor: "#e3f2fd", borderRadius: 2 }}>
         <Box
           sx={{
             p: 2,
@@ -71,12 +67,14 @@ export const Main = () => {
             textAlign: "center",
             backgroundColor: "primary.dark",
             color: "white",
+            borderTopLeftRadius: 8,
+            borderTopRightRadius: 8,
           }}
         >
           Current holdings {connected}
         </Box>
-        <List sx={{ backgroundColor:  "#e3f2fd" }}>
-          <ListItem>
+        <List>
+          <ListItem divider>
             <ListItemText
               primary="Thank you tokens"
               secondary={thanksBalance}
@@ -87,7 +85,7 @@ export const Main = () => {
           </ListItem>
         </List>
       </Box>
-    </StyledBox>
+    </div>
   );
 };
 

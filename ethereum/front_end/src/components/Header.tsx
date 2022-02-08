@@ -17,11 +17,11 @@ export const Header = () => {
   return (
     <StyledHeader>
       {isConnected ? (
-        <Button variant="outlined" onClick={deactivate}>
+        <Button variant="contained" onClick={deactivate}>
           Disconnect
         </Button>
       ) : (
-        <Button variant="outlined" onClick={() => activateBrowserWallet()}>
+        <Button variant="contained" onClick={() => activateBrowserWallet()}>
           Connect
         </Button>
       )}
