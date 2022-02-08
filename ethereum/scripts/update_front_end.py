@@ -1,8 +1,8 @@
-from scripts.deployRewards import update_front_end
+from scripts import deployRewards
 
 
 def main():
-    update_front_end()
+    deployRewards.update_front_end()
 
 
 if "__name__" == "__main__":
