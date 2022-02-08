@@ -4,7 +4,6 @@ import { styled } from "@mui/system";
 
 const StyledHeader = styled("div")({
   color: "aliceblue",
-  backgroundColor: "primary.main",
   padding: 8,
   borderRadius: 4,
 });
@@ -17,11 +16,11 @@ export const Header = () => {
   return (
     <StyledHeader>
       {isConnected ? (
-        <Button variant="outlined" onClick={deactivate}>
+        <Button variant="outlined" onClick={deactivate} sx={{mx: "auto"}}>
           Disconnect
         </Button>
       ) : (
-        <Button variant="outlined" onClick={() => activateBrowserWallet()}>
+        <Button variant="outlined" onClick={() => activateBrowserWallet()} sx={{mx: "auto"}}>
           Connect
         </Button>
       )}

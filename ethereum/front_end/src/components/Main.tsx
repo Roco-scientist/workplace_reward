@@ -25,6 +25,7 @@ export const Main = () => {
   let rewardsAddress;
   let swapAddress;
   let connected;
+  let isConnected = account !== undefined;
 
   // If the chainId is within the JSON, pull the addresses, else set the addresses to 0
   if (stringChainId in networkMapping) {
@@ -40,7 +41,11 @@ export const Main = () => {
       ? networkMapping[stringChainId]["Swap"][deployNumber]
       : constants.AddressZero;
 
-    connected = "(Ropsten)";
+    if (isConnected) {
+      connected = "(Ropsten)";
+    } else {
+      connected = "(Connect to Ropsten)";
+    }
   } else {
     thanksAddress = constants.AddressZero;
     rewardsAddress = constants.AddressZero;
