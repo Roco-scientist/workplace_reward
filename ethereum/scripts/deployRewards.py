@@ -1,5 +1,5 @@
 from brownie import RewardsToken, ThankYouToken, Swap
-from scripts.helpful_scripts import get_account, NETWORK_CONVERSIONS
+from scripts.helpful_scripts import get_account
 import yaml
 import json
 import argparse
