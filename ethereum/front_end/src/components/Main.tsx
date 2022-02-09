@@ -59,20 +59,10 @@ export const Main = () => {
 
   const swapContract = new Contract(swapAddress, swap["abi"]);
 
-  let adminAddressResult = useCall({
-    contract: swapContract,
-    method: "owner",
-    args: [],
-  });
-  const adminAddress = adminAddressResult
-    ? adminAddressResult.value
-      ? adminAddressResult.value[0]
-      : constants.AddressZero
-    : constants.AddressZero;
-  console.log(adminAddress);
+  // const adminInser =
 
-  if (adminAddress === accountAddress) {
-    return (
+  return (
+    <div>
       <div>
         <Box sx={{ boxShadow: 3, backgroundColor: "#e3f2fd", borderRadius: 2 }}>
           <Box
@@ -104,6 +94,28 @@ export const Main = () => {
             </ListItem>
           </List>
         </Box>
+      </div>
+      {Admin(accountAddress, swapContract)}
+    </div>
+  );
+};
+
+export const Admin = (accountAddress: string, swapContract: Contract) => {
+  let adminAddressResult = useCall({
+    contract: swapContract,
+    method: "owner",
+    args: [],
+  });
+  const adminAddress = adminAddressResult
+    ? adminAddressResult.value
+      ? adminAddressResult.value[0]
+      : constants.AddressZero
+    : constants.AddressZero;
+  console.log(adminAddress);
+
+  if (adminAddress === accountAddress) {
+    return (
+      <div>
         <Box
           sx={{
             boxShadow: 3,
@@ -130,39 +142,6 @@ export const Main = () => {
       </div>
     );
   } else {
-    return (
-      <div>
-        <Box sx={{ boxShadow: 3, backgroundColor: "#e3f2fd", borderRadius: 2 }}>
-          <Box
-            sx={{
-              p: 2,
-              fontSize: "h1.fontsize",
-              fontWeight: "bold",
-              textAlign: "center",
-              backgroundColor: "primary.dark",
-              color: "white",
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-            }}
-          >
-            Current holdings {connected}
-          </Box>
-          <List>
-            <ListItem divider>
-              <ListItemText
-                primary="Thank you tokens"
-                secondary={thanksBalance}
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Reward tokens"
-                secondary={rewardsBalance}
-              />
-            </ListItem>
-          </List>
-        </Box>
-      </div>
-    );
+    return <div></div>;
   }
 };
