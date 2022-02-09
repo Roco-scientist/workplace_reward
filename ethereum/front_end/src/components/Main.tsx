@@ -1,11 +1,20 @@
-import { useEthers, useTokenBalance, useCall } from "@usedapp/core";
+import {
+  useEthers,
+  useTokenBalance,
+  useCall,
+  useContractFunction,
+} from "@usedapp/core";
 import { Contract } from "@ethersproject/contracts";
 import networkMapping from "../contract_map.json";
 import { BigNumber, constants } from "ethers";
-import Box from "@mui/material/Box";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+} from "@mui/material";
 import swap from "../Swap.json";
 
 export const Main = () => {
@@ -52,23 +61,48 @@ export const Main = () => {
 
   // Get the token balances to display
   const thanksBalance_start = useTokenBalance(accountAddress, thanksAddress);
-  const thanksBalance = thanksBalance_start ? thanksBalance_start : BigNumber.from(0);
+  const thanksBalance = thanksBalance_start
+    ? thanksBalance_start
+    : BigNumber.from(0);
 
   const rewardsBalance_start = useTokenBalance(accountAddress, rewardsAddress);
-  const rewardsBalance = rewardsBalance_start ? rewardsBalance_start : BigNumber.from(0);
+  const rewardsBalance = rewardsBalance_start
+    ? rewardsBalance_start
+    : BigNumber.from(0);
 
+  // create the contract to connect and call solidity functions on the blockchain
   const swapContract = new Contract(swapAddress, swap["abi"]);
-
-  // const adminInser =
 
   return (
     <div>
       {Balances(connected, thanksBalance, rewardsBalance)}
+      {SendAppreciation(swapContract)}
       {Admin(accountAddress, swapContract)}
     </div>
   );
 };
 
+// Styles for the header box
+const BoxHeaderStyle = {
+  p: 2,
+  fontSize: "h1.fontsize",
+  fontWeight: "bold",
+  textAlign: "center",
+  backgroundColor: "primary.dark",
+  color: "white",
+  borderTopLeftRadius: 8,
+  borderTopRightRadius: 8,
+};
+
+// Styles for the larger box container
+const BoxContainerStyle = {
+  boxShadow: 3,
+  backgroundColor: "#e3f2fd",
+  borderRadius: 2,
+  marginTop: 2,
+};
+
+// Function to display the token balances
 export const Balances = (
   connected: string,
   thanksBalance: BigNumber,
@@ -76,21 +110,8 @@ export const Balances = (
 ) => {
   return (
     <div>
-      <Box sx={{ boxShadow: 3, backgroundColor: "#e3f2fd", borderRadius: 2 }}>
-        <Box
-          sx={{
-            p: 2,
-            fontSize: "h1.fontsize",
-            fontWeight: "bold",
-            textAlign: "center",
-            backgroundColor: "primary.dark",
-            color: "white",
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-          }}
-        >
-          Current holdings {connected}
-        </Box>
+      <Box sx={BoxContainerStyle}>
+        <Box sx={BoxHeaderStyle}>Current holdings {connected}</Box>
         <List>
           <ListItem divider>
             <ListItemText
@@ -99,7 +120,10 @@ export const Balances = (
             />
           </ListItem>
           <ListItem>
-            <ListItemText primary="Reward tokens" secondary={rewardsBalance.toString()} />
+            <ListItemText
+              primary="Reward tokens"
+              secondary={rewardsBalance.toString()}
+            />
           </ListItem>
         </List>
       </Box>
@@ -107,6 +131,47 @@ export const Balances = (
   );
 };
 
+// Function to display container that allows sending thanks tokens to other user
+export const SendAppreciation = (swapContract: Contract) => {
+  return (
+    <div>
+      <Box sx={BoxContainerStyle}>
+        <Box sx={BoxHeaderStyle}>Send Appreciation</Box>
+        <form>
+          <TextField
+            label="User address"
+            variant="outlined"
+            id="appreciation-address"
+            sx={{ m: 1 }}
+          />
+          <TextField
+            label="Amount"
+            variant="outlined"
+            id="appreciation-amount"
+            sx={{ m: 1 }}
+          />
+          <TextField
+            label="Appreciation message"
+            variant="outlined"
+            id="appreciation-message"
+            margin="normal"
+            fullWidth
+          />
+          <Button onClick={() => SendThanks(swapContract)}>Submit</Button>
+        </form>
+      </Box>
+    </div>
+  );
+};
+
+// Actually sending the thanks tokens
+const SendThanks = (swapContract: Contract) => {
+  // add stuff here
+};
+
+// Admin container that has additional functionality that only the admin of the contract can
+// call.  Security is placed on the blockchain, so only the holder of the owner public address
+// can call these functions, even outside of the HTML
 export const Admin = (accountAddress: string, swapContract: Contract) => {
   let adminAddressResult = useCall({
     contract: swapContract,
@@ -123,32 +188,33 @@ export const Admin = (accountAddress: string, swapContract: Contract) => {
   if (adminAddress === accountAddress) {
     return (
       <div>
-        <Box
-          sx={{
-            boxShadow: 3,
-            backgroundColor: "#e3f2fd",
-            borderRadius: 2,
-            marginTop: 5,
-          }}
-        >
-          <Box
-            sx={{
-              p: 2,
-              fontSize: "h1.fontsize",
-              fontWeight: "bold",
-              textAlign: "center",
-              backgroundColor: "primary.dark",
-              color: "white",
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-            }}
-          >
-            Admin Activities
-          </Box>
+        <Box sx={BoxContainerStyle}>
+          <Box sx={BoxHeaderStyle}>Admin Activities</Box>
+          <form>
+            <TextField
+              label="New user address"
+              variant="outlined"
+              id="newAddress"
+              margin="normal"
+              fullWidth
+            />
+            <Button onClick={() => AddUser(swapContract)}>Submit</Button>
+          </form>
         </Box>
       </div>
     );
   } else {
     return <div></div>;
   }
+};
+
+// Fucntion to add a users address to the swap contract to allow sending and receiving
+// of thanks and rewards tokens
+const AddUser = (swapContract: Contract) => {
+  const newAddress = document.getElementById("newAddress");
+  // console.log(newAddress.nodeValue);
+  // const { state, send } = useContractFunction(swapContract, "addAddress", {
+  //   transactionName: "NewAddress",
+  // });
+  // send.arguments(newAddress);
 };
