@@ -1,7 +1,7 @@
 import { useEthers, useTokenBalance, useCall } from "@usedapp/core";
 import { Contract } from "@ethersproject/contracts";
 import networkMapping from "../contract_map.json";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -52,10 +52,10 @@ export const Main = () => {
 
   // Get the token balances to display
   const thanksBalance_start = useTokenBalance(accountAddress, thanksAddress);
-  const thanksBalance = thanksBalance_start ? thanksBalance_start : 0;
+  const thanksBalance = thanksBalance_start ? thanksBalance_start : BigNumber.from(0);
 
   const rewardsBalance_start = useTokenBalance(accountAddress, rewardsAddress);
-  const rewardsBalance = rewardsBalance_start ? rewardsBalance_start : 0;
+  const rewardsBalance = rewardsBalance_start ? rewardsBalance_start : BigNumber.from(0);
 
   const swapContract = new Contract(swapAddress, swap["abi"]);
 
@@ -63,39 +63,46 @@ export const Main = () => {
 
   return (
     <div>
-      <div>
-        <Box sx={{ boxShadow: 3, backgroundColor: "#e3f2fd", borderRadius: 2 }}>
-          <Box
-            sx={{
-              p: 2,
-              fontSize: "h1.fontsize",
-              fontWeight: "bold",
-              textAlign: "center",
-              backgroundColor: "primary.dark",
-              color: "white",
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-            }}
-          >
-            Current holdings {connected}
-          </Box>
-          <List>
-            <ListItem divider>
-              <ListItemText
-                primary="Thank you tokens"
-                secondary={thanksBalance}
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Reward tokens"
-                secondary={rewardsBalance}
-              />
-            </ListItem>
-          </List>
-        </Box>
-      </div>
+      {Balances(connected, thanksBalance, rewardsBalance)}
       {Admin(accountAddress, swapContract)}
+    </div>
+  );
+};
+
+export const Balances = (
+  connected: string,
+  thanksBalance: BigNumber,
+  rewardsBalance: BigNumber
+) => {
+  return (
+    <div>
+      <Box sx={{ boxShadow: 3, backgroundColor: "#e3f2fd", borderRadius: 2 }}>
+        <Box
+          sx={{
+            p: 2,
+            fontSize: "h1.fontsize",
+            fontWeight: "bold",
+            textAlign: "center",
+            backgroundColor: "primary.dark",
+            color: "white",
+            borderTopLeftRadius: 8,
+            borderTopRightRadius: 8,
+          }}
+        >
+          Current holdings {connected}
+        </Box>
+        <List>
+          <ListItem divider>
+            <ListItemText
+              primary="Thank you tokens"
+              secondary={thanksBalance.toString()}
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemText primary="Reward tokens" secondary={rewardsBalance.toString()} />
+          </ListItem>
+        </List>
+      </Box>
     </div>
   );
 };
