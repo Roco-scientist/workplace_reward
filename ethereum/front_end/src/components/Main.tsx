@@ -16,6 +16,7 @@ import {
   TextField,
 } from "@mui/material";
 import swap from "../Swap.json";
+import { useState } from "react";
 
 export const Main = () => {
   // set deploy number from the brownie deoploy.  Change this later
@@ -133,6 +134,12 @@ export const Balances = (
 
 // Function to display container that allows sending thanks tokens to other user
 export const SendAppreciation = (swapContract: Contract) => {
+  const [formData, setFormData] = useState({
+    appreciationAddress: "",
+    appreciationAmount: "",
+    appreciationMessage: "",
+  });
+
   return (
     <div>
       <Box sx={BoxContainerStyle}>
@@ -142,20 +149,31 @@ export const SendAppreciation = (swapContract: Contract) => {
             label="User address"
             variant="outlined"
             id="appreciation-address"
-            sx={{ m: 1 }}
+            sx={{ m: 1, width: "79%" }}
+            value={formData.appreciationAddress}
+            onChange={(e) =>
+              setFormData({ ...formData, appreciationAddress: e.target.value })
+            }
           />
           <TextField
             label="Amount"
             variant="outlined"
             id="appreciation-amount"
-            sx={{ m: 1 }}
+            sx={{ m: 1, width: "15%" }}
+            value={formData.appreciationAmount}
+            onChange={(e) =>
+              setFormData({ ...formData, appreciationAmount: e.target.value })
+            }
           />
           <TextField
             label="Appreciation message"
             variant="outlined"
             id="appreciation-message"
-            margin="normal"
-            fullWidth
+            sx={{ m: 1, width: "97%" }}
+            value={formData.appreciationMessage}
+            onChange={(e) =>
+              setFormData({ ...formData, appreciationMessage: e.target.value })
+            }
           />
           <Button onClick={() => SendThanks(swapContract)}>Submit</Button>
         </form>
@@ -183,7 +201,10 @@ export const Admin = (accountAddress: string, swapContract: Contract) => {
       ? adminAddressResult.value[0]
       : constants.AddressZero
     : constants.AddressZero;
-  console.log(adminAddress);
+
+  const [formData, setFormData] = useState({
+    newAddress: "",
+  });
 
   if (adminAddress === accountAddress) {
     return (
@@ -195,10 +216,15 @@ export const Admin = (accountAddress: string, swapContract: Contract) => {
               label="New user address"
               variant="outlined"
               id="newAddress"
-              margin="normal"
-              fullWidth
+              sx={{ m: 1, width: "97%" }}
+              value={formData.newAddress}
+              onChange={(e) =>
+                setFormData({ ...formData, newAddress: e.target.value })
+              }
             />
-            <Button onClick={() => AddUser(swapContract)}>Submit</Button>
+            <Button onClick={() => AddUser(swapContract, formData.newAddress)}>
+              Submit
+            </Button>
           </form>
         </Box>
       </div>
@@ -210,11 +236,9 @@ export const Admin = (accountAddress: string, swapContract: Contract) => {
 
 // Fucntion to add a users address to the swap contract to allow sending and receiving
 // of thanks and rewards tokens
-const AddUser = (swapContract: Contract) => {
-  const newAddress = document.getElementById("newAddress");
-  // console.log(newAddress.nodeValue);
-  // const { state, send } = useContractFunction(swapContract, "addAddress", {
-  //   transactionName: "NewAddress",
-  // });
-  // send.arguments(newAddress);
+const AddUser = (swapContract: Contract, newAddress: string) => {
+  const { state, send } = useContractFunction(swapContract, "addAddress", {
+    transactionName: "NewAddress",
+  });
+  send.arguments(newAddress);
 };
