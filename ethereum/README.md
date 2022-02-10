@@ -1,4 +1,4 @@
-# contract code WORK IN PROGRESS
+# Contract code
 
 ## Requirements
 
@@ -8,6 +8,12 @@
   - `pipx install eth-brownie`
 - [Solidity compiler](https://docs.soliditylang.org/en/v0.8.11/installing-solidity.html)
 - [Ganache](https://trufflesuite.com/ganache/)
+- Metamask wallet plugin to interact with the front end
+  - [For Chrome](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn)
+  - [For firefox](https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/)
+- To enable further use, the deployer needs to connect to the front end in order to:
+  - Add the address to the contract
+  - Distribute thanks coins to the added address
 
 ## Compile Solidity Contracts
 
