@@ -19,6 +19,7 @@ import {
 export const SendAppreciation = () => {
   const swapContract = SwapContract();
 
+  // data that is set by the form
   const [formData, setFormData] = useState({
     appreciationAddress: "",
     appreciationAmount: "",
@@ -26,7 +27,7 @@ export const SendAppreciation = () => {
   });
 
   // Retrieve the number of decimal places the Thanks token holds.  Smart contracts do
-  // not have float, so ERC20 token use an integer and set the number of decimals.  Therefor
+  // not have float, so ERC20 token use an integer and set the number of decimals.  Therefor,
   // whatever input value the user puts, this needs to be multiplied by 10^DECIMALS
   let thanksDecimalsResult = useCall({
     contract: ThanksContract(),
@@ -63,8 +64,8 @@ export const SendAppreciation = () => {
     transactionName: "Send thanks token to other user",
   });
 
-  // During every render check if sending thanks was approved by the user and this transactionName
-  // finished, then also that the thanks has not yet been sent.  If so, then send the thanks that were
+  // During every render,  check if approval by the user was successfully added to the blockchain,
+  // then check if the user has not yet sent the tokens.  If these conditions are met, send the thanks that were
   // approved
   useEffect(() => {
     if (
@@ -106,6 +107,7 @@ export const SendAppreciation = () => {
   const SendThanks = () => {
     approveAndSendThanks();
   };
+
   return (
     <div>
       <Box sx={BoxContainerStyle}>
