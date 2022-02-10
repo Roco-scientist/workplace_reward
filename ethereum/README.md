@@ -74,3 +74,7 @@ yarn start
   - 0x30D4C0b1cBBa1A31F04d921fCA45eb0edDC7A367
 - AVAX (Avalanche):
   - 0x30d4c0b1cbba1a31f04d921fca45eb0eddc7a367
+
+## Current front-end screenshot
+
+![Thanks](../thanks.png)
