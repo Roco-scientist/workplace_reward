@@ -34,4 +34,4 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Current front-end screenshot
 
-![Thanks](.../../thanks.png)
+![Thanks](../../thanks.png)
