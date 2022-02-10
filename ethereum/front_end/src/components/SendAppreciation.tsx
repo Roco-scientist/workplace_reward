@@ -38,9 +38,6 @@ export const SendAppreciation = () => {
       ? thanksDecimalsResult.value[0]
       : 18
     : 18;
-  const SendThanks = () => {
-    approveAndSendThanks();
-  };
 
   // Get approval for sending thanks token from the user
   const {
@@ -105,6 +102,10 @@ export const SendAppreciation = () => {
     sendThanksState.status === "Mining" ||
     sendThanksState.status === "PendingSignature";
 
+  // Function to get the ball rolling after user hits submit
+  const SendThanks = () => {
+    approveAndSendThanks();
+  };
   return (
     <div>
       <Box sx={BoxContainerStyle}>

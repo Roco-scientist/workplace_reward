@@ -1,4 +1,4 @@
-# Workplace Reward WORK IN PROGRESS  
+# Workplace Reward
 
 A blockchain token generator.  The tokens are meant to be exchanged within a company to show appreciation for help on tasks.
 Eventually will include the ability to trade in tokens for company schwag or goodies.
@@ -6,3 +6,7 @@ Eventually will include the ability to trade in tokens for company schwag or goo
 ## Code to deploy to ethereum compatible blockchains
 
 [Ethereum code](./ethereum)
+
+## Current front-end screenshot
+
+![Thanks](./thanks.png)
