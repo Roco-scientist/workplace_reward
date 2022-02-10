@@ -24,3 +24,5 @@ yarn-error.log*
 
 contract.map.json
 swap.json
+RewardsToken.json
+ThankYouToken.json
