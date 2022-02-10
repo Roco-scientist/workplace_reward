@@ -6,7 +6,8 @@ import argparse
 from pathlib import Path
 import shutil
 
-DECIMALS = 10 ** 2
+NUM_DECIMALS = 2
+DECIMALS = 10 ** NUM_DECIMALS
 
 
 def arguments():
@@ -16,6 +17,11 @@ def arguments():
         action="store_true",
         default=False,
         help="Update the front end with contract information",
+    )
+    parser.add_argument(
+        "initial_supply",
+        default=1000000,
+        help="Initial supply of thanks tokens to be created",
     )
     return parser.parse_args()
 
@@ -76,8 +82,8 @@ def update_front_end():
     print("Front end updated")
 
 
-def run_all(update_html=False):
-    supply = 10 ** 6 * DECIMALS
+def run_all(initial_supply=10 ** 6, update_html=False):
+    supply = initial_supply * DECIMALS
     account = get_account()
     rewards_contract = deploy_rewards(supply, account)
     thanks_contract = deploy_thanks(supply, account)
@@ -90,4 +96,4 @@ def run_all(update_html=False):
 
 def main():
     args = arguments()
-    run_all(args.update_front_end)
+    run_all(args.initial_supply, args.update_front_end)

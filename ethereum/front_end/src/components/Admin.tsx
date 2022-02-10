@@ -1,15 +1,25 @@
 import { useEthers, useCall, useContractFunction } from "@usedapp/core";
 import { constants } from "ethers";
-import { Box, Button, CircularProgress, List, ListItem, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  List,
+  ListItem,
+  TextField,
+} from "@mui/material";
 import { useState } from "react";
 import { SwapContract, BoxHeaderStyle, BoxContainerStyle } from "./Common";
 
 export const Admin = () => {
+  // Get the swap contract to call its functions
   const swapContract = SwapContract();
 
+  // retrieve the account which is logged in and set the address to zeros if it is not logged in
   const { account } = useEthers();
   const accountAddress = account ? account : constants.AddressZero;
 
+  // Get the owner of the swap contract (adminAddress)
   let adminAddressResult = useCall({
     contract: swapContract,
     method: "owner",
@@ -21,10 +31,10 @@ export const Admin = () => {
       : constants.AddressZero
     : constants.AddressZero;
 
-  const [formData, setFormData] = useState({
-    newAddress: "",
-  });
+  // Create the form data hooks to be updated by the form when the button is pressed
+  const [newAddress, setNewAddress] = useState("");
 
+  // Create the addAddress hook
   const { send: addAddress, state: addAddressState } = useContractFunction(
     swapContract,
     "addAddress",
@@ -33,56 +43,78 @@ export const Admin = () => {
     }
   );
 
-  const isAddingAddress =
-    addAddressState.status === "Mining" ||
-    addAddressState.status === "PendingSignature";
-  // Fucntion to add a users address to the swap contract to allow sending and receiving
-  // of thanks and rewards tokens
+  // Function to add a users address to the swap contract to allow sending and receiving
+  // of thanks and rewards tokens when the button is clicked
   const AddUser = () => {
-    addAddress(formData.newAddress);
+    addAddress(newAddress);
   };
 
-  const { send: distributeThanks, state: distributeThanksState } = useContractFunction(
-    swapContract,
-    "distribute",
-    {
-      transactionName: "Distribute thanks tokens",
-    }
-  );
+  // Amount to be distributed
+  const [distributeAmount, setDistributeAmount] = useState("");
 
-  const isDistributing =
-    distributeThanksState.status === "Mining" ||
-    distributeThanksState.status === "PendingSignature";
+  // Distribute tokens to addresses on the contract
+  const { send: distributeThanks, state: distributeThanksState } =
+    useContractFunction(swapContract, "distribute", {
+      transactionName: "Distribute thanks tokens",
+    });
+
   // Fucntion to add a users address to the swap contract to allow sending and receiving
   // of thanks and rewards tokens
   const Distribute = () => {
     distributeThanks();
   };
 
-  if (adminAddress === accountAddress) {
+  // Status of the distribution.  Used to disable distribute button when in progress
+  const isDistributing =
+    distributeThanksState.status === "Mining" ||
+    distributeThanksState.status === "PendingSignature";
+  // Status to set the submit button to disabled if the transaction is occuring but not finished
+  const isAddingAddress =
+    addAddressState.status === "Mining" ||
+    addAddressState.status === "PendingSignature";
+
+  // If the logged in user is the admin, show this form
+  if (
+    adminAddress === accountAddress &&
+    accountAddress !== constants.AddressZero
+  ) {
     return (
       <div>
         <Box sx={BoxContainerStyle}>
           <Box sx={BoxHeaderStyle}>Admin Activities</Box>
           <List>
-          <ListItem divider>
-            <TextField
-              label="New user address"
-              variant="outlined"
-              id="newAddress"
-              sx={{ m: 1, width: "97%" }}
-              value={formData.newAddress}
-              onChange={(e) =>
-                setFormData({ ...formData, newAddress: e.target.value })
-              }
-            />
-            <Button onClick={() => AddUser()} disabled={isAddingAddress}>
-              {isAddingAddress ? <CircularProgress size={26} /> : "Submit"}
-            </Button>
+            <ListItem divider>
+              <TextField
+                label="New user address"
+                variant="outlined"
+                id="newAddress"
+                sx={{ m: 1, width: "97%" }}
+                value={newAddress}
+                onChange={(e) => setNewAddress(e.target.value)}
+              />
+              <Button onClick={() => AddUser()} disabled={isAddingAddress}>
+                {isAddingAddress ? <CircularProgress size={26} /> : "Submit"}
+              </Button>
             </ListItem>
-            <Button onClick={() => Distribute()} disabled={isDistributing} variant="contained">
+            <ListItem>
+              <TextField
+                label="Amount (non-functional placeholder)"
+                variant="outlined"
+                id="amount"
+                sx={{ m: 1, width: "60%" }}
+                value={distributeAmount}
+                onChange={(e) => setDistributeAmount(e.target.value)}
+                disabled
+              />
+            <Button
+              onClick={() => Distribute()}
+              disabled={isDistributing}
+              variant="contained"
+              sx={{m:1}}
+            >
               {isDistributing ? <CircularProgress size={26} /> : "Distribute"}
             </Button>
+            </ListItem>
           </List>
         </Box>
       </div>

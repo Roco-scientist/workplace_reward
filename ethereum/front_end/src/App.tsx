@@ -4,8 +4,6 @@ import Container from "@mui/material/Container";
 import { Balances } from "./components/Balances";
 import { SendAppreciation } from "./components/SendAppreciation";
 import { Admin } from "./components/Admin";
-import { Contract } from "@ethersproject/contracts";
-import swap from "./Swap.json";
 
 const config = {
   networks: [Ropsten],
