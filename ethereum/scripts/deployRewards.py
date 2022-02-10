@@ -60,6 +60,19 @@ def update_front_end():
     front_end_map = Path("./front_end/src/contract_map.json")
     contracts_map = Path("./build/deployments/map.json")
     shutil.copy(contracts_map, front_end_map)
+
+    front_end_swap = Path("./front_end/src/Swap.json")
+    contracts_swap = Path("./build/contracts/Swap.json")
+    shutil.copy(contracts_swap, front_end_swap)
+
+    front_end_thanks = Path("./front_end/src/ThankYouToken.json")
+    contracts_thanks = Path("./build/contracts/ThankYouToken.json")
+    shutil.copy(contracts_thanks, front_end_thanks)
+
+    front_end_rewards = Path("./front_end/src/RewardsToken.json")
+    contracts_rewards = Path("./build/contracts/RewardsToken.json")
+    shutil.copy(contracts_rewards, front_end_rewards)
+
     print("Front end updated")
 
 
