@@ -49,6 +49,9 @@ export const Admin = () => {
     addAddress(newAddress);
   };
 
+  // Amount to be distributed
+  const [distributeAmount, setDistributeAmount] = useState("");
+
   // Distribute tokens to addresses on the contract
   const { send: distributeThanks, state: distributeThanksState } =
     useContractFunction(swapContract, "distribute", {
@@ -93,13 +96,25 @@ export const Admin = () => {
                 {isAddingAddress ? <CircularProgress size={26} /> : "Submit"}
               </Button>
             </ListItem>
+            <ListItem>
+              <TextField
+                label="Amount (non-functional placeholder)"
+                variant="outlined"
+                id="amount"
+                sx={{ m: 1, width: "60%" }}
+                value={distributeAmount}
+                onChange={(e) => setDistributeAmount(e.target.value)}
+                disabled
+              />
             <Button
               onClick={() => Distribute()}
               disabled={isDistributing}
               variant="contained"
+              sx={{m:1}}
             >
               {isDistributing ? <CircularProgress size={26} /> : "Distribute"}
             </Button>
+            </ListItem>
           </List>
         </Box>
       </div>
