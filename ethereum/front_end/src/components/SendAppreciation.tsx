@@ -1,4 +1,5 @@
-import { useContractFunction, useCall } from "@usedapp/core";
+import { useContractFunction, useCall, useEthers } from "@usedapp/core";
+import { constants } from "ethers";
 import {
   Box,
   Button,
@@ -16,8 +17,24 @@ import {
   ThanksContract,
 } from "./Common";
 
+const usersAddress = [
+  { name: "Jon", address: "0x3bD7736bB6feA5ebe2AC8eb7F380D0963D92d473" },
+  { name: "Mary", address: "0x6cE09101fcE65B6619606a7e0B91ef85dD99B5e5" },
+  { name: "Lucy", address: "0xE701A32AB9423594a0Dc65f2590C09fAD1D07Ca0" },
+];
+
+const compliments = [
+  { number: 0, message: "You're the best" },
+  { number: 1, message: "Could never have completed without you" },
+  { number: 2, message: "I owe you one" },
+];
+
 export const SendAppreciation = () => {
   const swapContract = SwapContract();
+
+  // retrieve the account which is logged in and set the address to zeros if it is not logged in
+  const { account } = useEthers();
+  const accountAddress = account ? account : constants.AddressZero;
 
   // data that is set by the form
   const [formData, setFormData] = useState({
@@ -125,12 +142,13 @@ export const SendAppreciation = () => {
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            <MenuItem value="0x3bD7736bB6feA5ebe2AC8eb7F380D0963D92d473">
-              Joe
-            </MenuItem>
-            <MenuItem value="0x6cE09101fcE65B6619606a7e0B91ef85dD99B5e5">
-              Mary
-            </MenuItem>
+            {usersAddress.map((user) => {
+              if (user.address !== accountAddress) {
+                return <MenuItem value={user.address}>{user.name}</MenuItem>;
+              } else {
+                return <div></div>;
+              }
+            })}
           </Select>
 
           <TextField
@@ -155,10 +173,13 @@ export const SendAppreciation = () => {
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            <MenuItem value={0}>You're the best</MenuItem>
-            <MenuItem value={1}>
-              Could never have completed without you
-            </MenuItem>
+            {compliments.map((compliment) => {
+              return (
+                <MenuItem value={compliment.number}>
+                  {compliment.message}
+                </MenuItem>
+              );
+            })}
           </Select>
           <Button onClick={() => SendThanks()} disabled={sendIsBusy}>
             {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
