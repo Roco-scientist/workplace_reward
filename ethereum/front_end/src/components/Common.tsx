@@ -3,6 +3,11 @@ import { Contract } from "@ethersproject/contracts";
 import networkMapping from "../contract_map.json";
 import { constants } from "ethers";
 import swap from "../Swap.json";
+import thanks from "../ThankYouToken.json";
+import rewards from "../RewardsToken.json";
+
+// set deploy number from the brownie deoploy.  Change this later
+const deployNumber = 1;
 
 // Styles for the header box
 export const BoxHeaderStyle = {
@@ -25,9 +30,6 @@ export const BoxContainerStyle = {
 };
 
 export const SwapContract = () => {
-  // set deploy number from the brownie deoploy.  Change this later
-  const deployNumber = 1;
-
   // get account and chain id of the connected wallet
   const { chainId } = useEthers();
   const stringChainId = String(chainId);
@@ -43,4 +45,40 @@ export const SwapContract = () => {
   // create the contract to connect and call solidity functions on the blockchain
   const swapContract = new Contract(swapAddress, swap["abi"]);
   return swapContract;
+};
+
+export const ThanksContract = () => {
+  // get account and chain id of the connected wallet
+  const { chainId } = useEthers();
+  const stringChainId = String(chainId);
+
+  // setup addresses to be used later.
+  const thanksAddress =
+    stringChainId in networkMapping
+      ? chainId
+        ? networkMapping[stringChainId]["ThankYouToken"][deployNumber]
+        : constants.AddressZero
+      : constants.AddressZero;
+
+  // create the contract to connect and call solidity functions on the blockchain
+  const thanksContract = new Contract(thanksAddress, thanks["abi"]);
+  return thanksContract;
+};
+
+export const RewardsContract = () => {
+  // get account and chain id of the connected wallet
+  const { chainId } = useEthers();
+  const stringChainId = String(chainId);
+
+  // setup addresses to be used later.
+  const rewardsAddress =
+    stringChainId in networkMapping
+      ? chainId
+        ? networkMapping[stringChainId]["RewardsToken"][deployNumber]
+        : constants.AddressZero
+      : constants.AddressZero;
+
+  // create the contract to connect and call solidity functions on the blockchain
+  const rewardsContract = new Contract(rewardsAddress, rewards["abi"]);
+  return rewardsContract;
 };

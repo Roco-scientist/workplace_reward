@@ -1,8 +1,9 @@
-import { useEthers, useTokenBalance } from "@usedapp/core";
+import { useCall, useEthers, useTokenBalance } from "@usedapp/core";
 import networkMapping from "../contract_map.json";
 import { BigNumber, constants } from "ethers";
 import { Box, List, ListItem, ListItemText } from "@mui/material";
-import { BoxContainerStyle, BoxHeaderStyle } from "./Common";
+import { BoxContainerStyle, BoxHeaderStyle, RewardsContract, ThanksContract } from "./Common";
+import { formatUnits } from '@ethersproject/units'
 
 export const Balances = () => {
   // set deploy number from the brownie deoploy.  Change this later
@@ -41,15 +42,38 @@ export const Balances = () => {
   }
 
   // Get the token balances to display
-  const thanksBalance_start = useTokenBalance(accountAddress, thanksAddress);
+  const thanksBalance_start = useTokenBalance(thanksAddress, accountAddress);
   const thanksBalance = thanksBalance_start
     ? thanksBalance_start
     : BigNumber.from(0);
 
-  const rewardsBalance_start = useTokenBalance(accountAddress, rewardsAddress);
+  const rewardsBalance_start = useTokenBalance(rewardsAddress, accountAddress);
   const rewardsBalance = rewardsBalance_start
     ? rewardsBalance_start
     : BigNumber.from(0);
+
+  let thanksDecimalsResult = useCall({
+    contract: ThanksContract(),
+    method: "decimals",
+    args: [],
+  });
+  const thanksDecimals = thanksDecimalsResult
+    ? thanksDecimalsResult.value
+      ? thanksDecimalsResult.value[0]
+      : 18
+    : 18;
+
+  let rewardsDecimalsResult = useCall({
+    contract: RewardsContract(),
+    method: "decimals",
+    args: [],
+  });
+  const rewardsDecimals = rewardsDecimalsResult
+    ? rewardsDecimalsResult.value
+      ? rewardsDecimalsResult.value[0]
+      : 18
+    : 18;
+
 
   return (
     <div>
@@ -59,13 +83,13 @@ export const Balances = () => {
           <ListItem divider>
             <ListItemText
               primary="Thank you tokens"
-              secondary={thanksBalance.toString()}
+              secondary={formatUnits(thanksBalance, thanksDecimals)}
             />
           </ListItem>
           <ListItem>
             <ListItemText
               primary="Reward tokens"
-              secondary={rewardsBalance.toString()}
+              secondary={formatUnits(rewardsBalance, rewardsDecimals)}
             />
           </ListItem>
         </List>

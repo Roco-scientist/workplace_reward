@@ -1,13 +1,20 @@
+import { useContractFunction, useCall } from "@usedapp/core";
 import {
   Box,
   Button,
+  CircularProgress,
   InputLabel,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import { BoxContainerStyle, BoxHeaderStyle, SwapContract } from "./Common";
+import {
+  BoxContainerStyle,
+  BoxHeaderStyle,
+  SwapContract,
+  ThanksContract,
+} from "./Common";
 
 export const SendAppreciation = () => {
   const swapContract = SwapContract();
@@ -18,9 +25,33 @@ export const SendAppreciation = () => {
     appreciationMessage: "",
   });
 
+  let thanksDecimalsResult = useCall({
+    contract: ThanksContract(),
+    method: "decimals",
+    args: [],
+  });
+  const thanksDecimals = thanksDecimalsResult
+    ? thanksDecimalsResult.value
+      ? thanksDecimalsResult.value[0]
+      : 18
+    : 18;
+
+  const { send: sendThanks, state: sendThanksState } = useContractFunction(
+    swapContract,
+    "sendThanks",
+    {
+      transactionName: "Send thanks token to other user",
+    }
+  );
+
+  const isSendingThanks =
+    sendThanksState.status === "Mining" ||
+    sendThanksState.status === "PendingSignature";
+
   // Actually sending the thanks tokens
   const SendThanks = () => {
-    // add stuff here
+    const appreciationAmt = parseFloat(formData.appreciationAmount) * thanksDecimals;
+    sendThanks(appreciationAmt, formData.appreciationAddress);
   };
 
   return (
@@ -75,7 +106,9 @@ export const SendAppreciation = () => {
               Could never have completed without you
             </MenuItem>
           </Select>
-          <Button onClick={() => SendThanks()}>Submit</Button>
+          <Button onClick={() => SendThanks()} disabled={isSendingThanks}>
+            {isSendingThanks ? <CircularProgress size={26} /> : "Submit"}
+          </Button>
         </form>
       </Box>
     </div>

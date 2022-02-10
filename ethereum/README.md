@@ -44,7 +44,14 @@ Tests found in [test folder](./tests)
 - [Thank you token](https://ropsten.etherscan.io/address/0x131432D246122B94FeD14873C2c05A154EC93122)
 - [Reward token](https://ropsten.etherscan.io/address/0x808cF232F973CF0bBB480C27d476E6C5581bbC62)
   
-Deployment cost: 0.121760029128948 ($367) eth with gas at ~50 gwei  
+Costs:
+- Deployment
+  - 0.121760029128948 ($367) eth with gas at ~50 gwei  
+- AddAddress
+  - 0.000165667866 eth
+- Distribute
+  - 0.00025524 eth
+
   
 ## Run front end
 
