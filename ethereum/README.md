@@ -51,6 +51,9 @@ Costs:
   - 0.000165667866 eth
 - Distribute
   - 0.00025524 eth
+- Send Thanks
+  - Approve: 0.00005463063 eth
+  - Send: 0.000184344972 eth
 
   
 ## Run front end
