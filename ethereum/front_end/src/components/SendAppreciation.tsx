@@ -8,7 +8,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BoxContainerStyle,
   BoxHeaderStyle,
@@ -25,6 +25,27 @@ export const SendAppreciation = () => {
     appreciationMessage: "",
   });
 
+  // Approve
+  const { send: approveThanks, state: approveThanksState } =
+    useContractFunction(ThanksContract(), "approve", {
+      transactionName: "Approve Thanks token send",
+    });
+
+  const approveAndSendThanks = (amount: string) => {
+    // setAmountToSend(amount);
+    console.log("Getting approval");
+    approveThanks(swapContract.address, amount);
+  };
+
+  // Send
+  const { send: sendThanks, state: sendThanksState } = useContractFunction(
+    swapContract,
+    "sendThanks",
+    {
+      transactionName: "Send thanks token to other user",
+    }
+  );
+
   let thanksDecimalsResult = useCall({
     contract: ThanksContract(),
     method: "decimals",
@@ -36,23 +57,37 @@ export const SendAppreciation = () => {
       : 18
     : 18;
 
-  const { send: sendThanks, state: sendThanksState } = useContractFunction(
-    swapContract,
-    "sendThanks",
-    {
-      transactionName: "Send thanks token to other user",
+  //useEffect
+  useEffect(() => {
+    if (approveThanksState.status === "Success" && sendThanksState.status === "None") {
+      const appreciationAmt =
+        parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
+      console.log("Sending");
+      sendThanks(appreciationAmt.toString(), formData.appreciationAddress);
+      console.log("Sent");
     }
-  );
+  }, [
+    approveThanksState,
+    formData.appreciationAddress,
+    sendThanks,
+    formData.appreciationAmount,
+    thanksDecimals,
+    sendThanksState
+  ]);
+
+  const SendThanks = () => {
+    const appreciationAmt =
+      parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
+    approveAndSendThanks(appreciationAmt.toString());
+  };
+
+  const isApprovingThanks =
+    approveThanksState.status === "Mining" ||
+    approveThanksState.status === "PendingSignature";
 
   const isSendingThanks =
     sendThanksState.status === "Mining" ||
     sendThanksState.status === "PendingSignature";
-
-  // Actually sending the thanks tokens
-  const SendThanks = () => {
-    const appreciationAmt = parseFloat(formData.appreciationAmount) * thanksDecimals;
-    sendThanks(appreciationAmt, formData.appreciationAddress);
-  };
 
   return (
     <div>
@@ -106,8 +141,15 @@ export const SendAppreciation = () => {
               Could never have completed without you
             </MenuItem>
           </Select>
-          <Button onClick={() => SendThanks()} disabled={isSendingThanks}>
-            {isSendingThanks ? <CircularProgress size={26} /> : "Submit"}
+          <Button
+            onClick={() => SendThanks()}
+            disabled={isSendingThanks || isApprovingThanks}
+          >
+            {isSendingThanks || isApprovingThanks ? (
+              <CircularProgress size={26} />
+            ) : (
+              "Submit"
+            )}
           </Button>
         </form>
       </Box>
