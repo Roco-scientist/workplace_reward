@@ -25,27 +25,9 @@ export const SendAppreciation = () => {
     appreciationMessage: "",
   });
 
-  // Approve
-  const { send: approveThanks, state: approveThanksState } =
-    useContractFunction(ThanksContract(), "approve", {
-      transactionName: "Approve Thanks token send",
-    });
-
-  const approveAndSendThanks = (amount: string) => {
-    // setAmountToSend(amount);
-    console.log("Getting approval");
-    approveThanks(swapContract.address, amount);
-  };
-
-  // Send
-  const { send: sendThanks, state: sendThanksState } = useContractFunction(
-    swapContract,
-    "sendThanks",
-    {
-      transactionName: "Send thanks token to other user",
-    }
-  );
-
+  // Retrieve the number of decimal places the Thanks token holds.  Smart contracts do
+  // not have float, so ERC20 token use an integer and set the number of decimals.  Therefor
+  // whatever input value the user puts, this needs to be multiplied by 10^DECIMALS
   let thanksDecimalsResult = useCall({
     contract: ThanksContract(),
     method: "decimals",
@@ -56,36 +38,70 @@ export const SendAppreciation = () => {
       ? thanksDecimalsResult.value[0]
       : 18
     : 18;
+  const SendThanks = () => {
+    approveAndSendThanks();
+  };
 
-  //useEffect
+  // Get approval for sending thanks token from the user
+  const {
+    send: approveThanks,
+    state: approveThanksState,
+    resetState: approveReset,
+  } = useContractFunction(ThanksContract(), "approve", {
+    transactionName: "Approve Thanks token send",
+  });
+  const approveAndSendThanks = () => {
+    const amount =
+      parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
+
+    approveThanks(swapContract.address, BigInt(amount).toString());
+  };
+
+  // Send thanks to other user
+  const {
+    send: sendThanks,
+    state: sendThanksState,
+    resetState: sendReset,
+  } = useContractFunction(swapContract, "sendThanks", {
+    transactionName: "Send thanks token to other user",
+  });
+
+  // During every render check if sending thanks was approved by the user and this transactionName
+  // finished, then also that the thanks has not yet been sent.  If so, then send the thanks that were
+  // approved
   useEffect(() => {
-    if (approveThanksState.status === "Success" && sendThanksState.status === "None") {
-      const appreciationAmt =
+    if (
+      approveThanksState.status === "Success" &&
+      sendThanksState.status === "None"
+    ) {
+      const amount =
         parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
-      console.log("Sending");
-      sendThanks(appreciationAmt.toString(), formData.appreciationAddress);
-      console.log("Sent");
+      sendThanks(BigInt(amount).toString(), formData.appreciationAddress);
     }
   }, [
     approveThanksState,
-    formData.appreciationAddress,
     sendThanks,
-    formData.appreciationAmount,
+    formData,
+    sendThanksState,
     thanksDecimals,
-    sendThanksState
   ]);
 
-  const SendThanks = () => {
-    const appreciationAmt =
-      parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
-    approveAndSendThanks(appreciationAmt.toString());
-  };
+  // If both transactions were a success reset to allow further transactions
+  useEffect(() => {
+    if (
+      approveThanksState.status === "Success" &&
+      sendThanksState.status === "Success"
+    ) {
+      approveReset();
+      sendReset();
+    }
+  });
 
-  const isApprovingThanks =
+  // Test to see if the app is busy either getting approval or sending the coin.
+  // This is used to set the submit button to disabled
+  const sendIsBusy =
     approveThanksState.status === "Mining" ||
-    approveThanksState.status === "PendingSignature";
-
-  const isSendingThanks =
+    approveThanksState.status === "PendingSignature" ||
     sendThanksState.status === "Mining" ||
     sendThanksState.status === "PendingSignature";
 
@@ -141,15 +157,8 @@ export const SendAppreciation = () => {
               Could never have completed without you
             </MenuItem>
           </Select>
-          <Button
-            onClick={() => SendThanks()}
-            disabled={isSendingThanks || isApprovingThanks}
-          >
-            {isSendingThanks || isApprovingThanks ? (
-              <CircularProgress size={26} />
-            ) : (
-              "Submit"
-            )}
+          <Button onClick={() => SendThanks()} disabled={sendIsBusy}>
+            {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
           </Button>
         </form>
       </Box>
