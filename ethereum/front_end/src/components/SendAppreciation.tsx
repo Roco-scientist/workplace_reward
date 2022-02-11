@@ -1,12 +1,19 @@
-import { useContractFunction, useCall, useEthers } from "@usedapp/core";
+import {
+  useContractFunction,
+  useCall,
+  useEthers,
+  useNotifications,
+} from "@usedapp/core";
 import { constants } from "ethers";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -30,6 +37,10 @@ const compliments = [
 ];
 
 export const SendAppreciation = () => {
+  // Setup notifications to display when transactions are a success
+  const { notifications } = useNotifications();
+
+  // Get the swap contract to perform contract functions later
   const swapContract = SwapContract();
 
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
@@ -112,6 +123,39 @@ export const SendAppreciation = () => {
     }
   });
 
+  // Create status information that shows the user whether their thanks
+  // token has been approved and whether it has been sent
+  const [showThanksApprovalSuccess, setShowThanksApprovalSuccess] =
+    useState(false);
+  const [showSendTokenSuccess, setShowSendTokenSuccess] = useState(false);
+  const handleCloseSnack = () => {
+    setShowThanksApprovalSuccess(false);
+    setShowSendTokenSuccess(false);
+  };
+  // Pull notification on the process and set notification display
+  useEffect(() => {
+    if (
+      notifications.filter(
+        (notification) =>
+          notification.type === "transactionSucceed" &&
+          notification.transactionName === "Approve Thanks token send"
+      ).length > 0
+    ) {
+      setShowThanksApprovalSuccess(true);
+      setShowSendTokenSuccess(false);
+    }
+    if (
+      notifications.filter(
+        (notification) =>
+          notification.type === "transactionSucceed" &&
+          notification.transactionName === "Send thanks token to other user"
+      ).length > 0
+    ) {
+      setShowThanksApprovalSuccess(false);
+      setShowSendTokenSuccess(true);
+    }
+  }, [notifications, showThanksApprovalSuccess, showSendTokenSuccess]);
+
   // Test to see if the app is busy either getting approval or sending the coin.
   // This is used to set the submit button to disabled
   const sendIsBusy =
@@ -185,6 +229,24 @@ export const SendAppreciation = () => {
             {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
           </Button>
         </form>
+        <Snackbar
+          open={showThanksApprovalSuccess}
+          autoHideDuration={5000}
+          onClose={handleCloseSnack}
+        >
+          <Alert onClose={handleCloseSnack} severity="success">
+            Thanks token transfer approved! Now approve sending.
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={showSendTokenSuccess}
+          autoHideDuration={5000}
+          onClose={handleCloseSnack}
+        >
+          <Alert onClose={handleCloseSnack} severity="success">
+            Thanks sent!
+          </Alert>
+        </Snackbar>
       </Box>
     </div>
   );

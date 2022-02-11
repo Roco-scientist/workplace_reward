@@ -7,10 +7,13 @@ import { Admin } from "./components/Admin";
 
 const config = {
   networks: [Ropsten],
+  notifications: {
+    expirationPeriod: 1000,
+    checkInterval: 1000,
+  },
 };
 
 function App() {
-
   return (
     <DAppProvider config={config}>
       <Header />
