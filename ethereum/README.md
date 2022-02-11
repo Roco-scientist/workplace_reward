@@ -40,8 +40,8 @@ Tests found in [test folder](./tests)
 
 ### Other testnets
 
-`brownie run ./scripts/deployRewards.py --update_front_end --network rinkebey`  
-`brownie run ./scripts/deployRewards.py --update_front_end --network ropsten`
+`brownie run ./scripts/deployRewards.py --network rinkebey`  
+`brownie run ./scripts/deployRewards.py --network ropsten`
 
 ### Deployed  
 2022-02-07 on ropsten test network:  
@@ -64,7 +64,7 @@ Costs:
   
 ## Run front end
 
-Make sure that there has been at least one deployment and the --update_front_end flag on brownie run was called.  
+Make sure that there has been at least one deployment on a non-local blockchain.  
   
 ### Locally
 

@@ -1,29 +1,13 @@
-from brownie import RewardsToken, ThankYouToken, Swap
-from scripts.helpful_scripts import get_account
+from brownie import RewardsToken, ThankYouToken, Swap, network
+from scripts.helpful_scripts import get_account, LOCAL_BLOCKCHAIN_ENVIRONMENTS
 import yaml
 import json
-import argparse
 from pathlib import Path
 import shutil
 
 NUM_DECIMALS = 2
 DECIMALS = 10 ** NUM_DECIMALS
-
-
-def arguments():
-    parser = argparse.ArgumentParser(description="Deployment of worker rewards")
-    parser.add_argument(
-        "update_front_end",
-        action="store_true",
-        default=False,
-        help="Update the front end with contract information",
-    )
-    parser.add_argument(
-        "initial_supply",
-        default=1000000,
-        help="Initial supply of thanks tokens to be created",
-    )
-    return parser.parse_args()
+INITIAL_SUPPLY = 10 ** 6
 
 
 def deploy_rewards(supply: int, account):
@@ -82,18 +66,17 @@ def update_front_end():
     print("Front end updated")
 
 
-def run_all(initial_supply=10 ** 6, update_html=False):
-    supply = initial_supply * DECIMALS
+def run_all():
+    supply = INITIAL_SUPPLY * DECIMALS
     account = get_account()
     rewards_contract = deploy_rewards(supply, account)
     thanks_contract = deploy_thanks(supply, account)
     swap_contract = deploy_swap(account, rewards_contract, thanks_contract)
     transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_contract)
-    if update_html:
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         update_front_end()
     return swap_contract, rewards_contract, thanks_contract
 
 
 def main():
-    args = arguments()
-    run_all(args.initial_supply, args.update_front_end)
+    run_all()

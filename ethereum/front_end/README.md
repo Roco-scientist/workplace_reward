@@ -1,6 +1,6 @@
 # Worker Rewards Front End
 
-Make sure to deploy the ethereum smart contracts with the `--update-front-end` flag before running.
+Make sure to deploy the ethereum smart contracts before running.
 This adds the necessary contract info and deployment addresses to the front end for contract interaction.
 
 - This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).  
