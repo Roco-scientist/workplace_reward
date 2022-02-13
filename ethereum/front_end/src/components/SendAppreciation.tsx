@@ -24,19 +24,33 @@ import {
   ThanksContract,
 } from "./Common";
 
-const usersAddress = [
-  { name: "Jon", address: "0x3bD7736bB6feA5ebe2AC8eb7F380D0963D92d473" },
-  { name: "Mary", address: "0x6cE09101fcE65B6619606a7e0B91ef85dD99B5e5" },
-  { name: "Lucy", address: "0xE701A32AB9423594a0Dc65f2590C09fAD1D07Ca0" },
-];
+interface User {
+  name: string;
+  address: string;
+  group: number;
+}
 
-const compliments = [
-  { number: 0, message: "You're the best" },
-  { number: 1, message: "Could never have completed without you" },
-  { number: 2, message: "I owe you one" },
-];
+interface Compliment {
+  message: string;
+}
 
 export const SendAppreciation = () => {
+  const defaultUsers: User[] = [];
+  const [users, setUsers] = useState(defaultUsers);
+
+  const defaultCompliments: Compliment[] = [];
+  const [compliments, setCompliments] = useState(defaultCompliments);
+
+  useEffect(() => {
+    fetch("http://localhost:3080/api/users")
+      .then((response) => response.json())
+      .then((response) => setUsers(response));
+
+    fetch("http://localhost:3080/api/compliments")
+      .then((response) => response.json())
+      .then((response) => setCompliments(response));
+  }, [setUsers, setCompliments]);
+
   // Setup notifications to display when transactions are a success
   const { notifications } = useNotifications();
 
@@ -183,16 +197,21 @@ export const SendAppreciation = () => {
               setFormData({ ...formData, appreciationAddress: e.target.value })
             }
           >
-            <MenuItem value="">
+            <MenuItem value="" key="NoUser">
               <em>None</em>
             </MenuItem>
-            {usersAddress.map((user) => {
+            {users.map((user) => {
               if (user.address !== accountAddress) {
-                return <MenuItem value={user.address}>{user.name}</MenuItem>;
+                return (
+                  <MenuItem value={user.address} key={user.address}>
+                    {user.name}
+                  </MenuItem>
+                );
               } else {
-                return <div></div>;
+                return <div key="Empty"></div>;
               }
             })}
+            {}
           </Select>
 
           <TextField
@@ -214,12 +233,12 @@ export const SendAppreciation = () => {
               setFormData({ ...formData, appreciationMessage: e.target.value })
             }
           >
-            <MenuItem value="">
+            <MenuItem value="" key="NoCompliment">
               <em>None</em>
             </MenuItem>
-            {compliments.map((compliment) => {
+            {compliments.map((compliment, i) => {
               return (
-                <MenuItem value={compliment.number}>
+                <MenuItem value={i} key={i}>
                   {compliment.message}
                 </MenuItem>
               );
