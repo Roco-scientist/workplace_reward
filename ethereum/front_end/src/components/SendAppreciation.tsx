@@ -1,12 +1,19 @@
-import { useContractFunction, useCall, useEthers } from "@usedapp/core";
+import {
+  useContractFunction,
+  useCall,
+  useEthers,
+  useNotifications,
+} from "@usedapp/core";
 import { constants } from "ethers";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -16,25 +23,47 @@ import {
   SwapContract,
   ThanksContract,
 } from "./Common";
+import { URL, URLSearchParams } from "url";
 
-const usersAddress = [
-  { name: "Jon", address: "0x3bD7736bB6feA5ebe2AC8eb7F380D0963D92d473" },
-  { name: "Mary", address: "0x6cE09101fcE65B6619606a7e0B91ef85dD99B5e5" },
-  { name: "Lucy", address: "0xE701A32AB9423594a0Dc65f2590C09fAD1D07Ca0" },
-];
+interface User {
+  name: string;
+  address: string;
+  group: number;
+}
 
-const compliments = [
-  { number: 0, message: "You're the best" },
-  { number: 1, message: "Could never have completed without you" },
-  { number: 2, message: "I owe you one" },
-];
+interface Compliment {
+  message: string;
+  group: number;
+}
 
 export const SendAppreciation = () => {
-  const swapContract = SwapContract();
-
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
   const { account } = useEthers();
   const accountAddress = account ? account : constants.AddressZero;
+
+  const defaultUsers: User[] = [];
+  const [users, setUsers] = useState(defaultUsers);
+
+  const defaultCompliments: Compliment[] = [];
+  const [compliments, setCompliments] = useState(defaultCompliments);
+
+  useEffect(() => {
+    fetch("http://localhost:3080/api/users?accountAddress=" + accountAddress)
+      .then((response) => response.json())
+      .then((response) => setUsers(response));
+
+    fetch(
+      "http://localhost:3080/api/compliments?accountAddress=" + accountAddress
+    )
+      .then((response) => response.json())
+      .then((response) => setCompliments(response));
+  }, [setUsers, setCompliments, accountAddress]);
+
+  // Setup notifications to display when transactions are a success
+  const { notifications } = useNotifications();
+
+  // Get the swap contract to perform contract functions later
+  const swapContract = SwapContract();
 
   // data that is set by the form
   const [formData, setFormData] = useState({
@@ -112,6 +141,39 @@ export const SendAppreciation = () => {
     }
   });
 
+  // Create status information that shows the user whether their thanks
+  // token has been approved and whether it has been sent
+  const [showThanksApprovalSuccess, setShowThanksApprovalSuccess] =
+    useState(false);
+  const [showSendTokenSuccess, setShowSendTokenSuccess] = useState(false);
+  const handleCloseSnack = () => {
+    setShowThanksApprovalSuccess(false);
+    setShowSendTokenSuccess(false);
+  };
+  // Pull notification on the process and set notification display
+  useEffect(() => {
+    if (
+      notifications.filter(
+        (notification) =>
+          notification.type === "transactionSucceed" &&
+          notification.transactionName === "Approve Thanks token send"
+      ).length > 0
+    ) {
+      setShowThanksApprovalSuccess(true);
+      setShowSendTokenSuccess(false);
+    }
+    if (
+      notifications.filter(
+        (notification) =>
+          notification.type === "transactionSucceed" &&
+          notification.transactionName === "Send thanks token to other user"
+      ).length > 0
+    ) {
+      setShowThanksApprovalSuccess(false);
+      setShowSendTokenSuccess(true);
+    }
+  }, [notifications, showThanksApprovalSuccess, showSendTokenSuccess]);
+
   // Test to see if the app is busy either getting approval or sending the coin.
   // This is used to set the submit button to disabled
   const sendIsBusy =
@@ -139,16 +201,17 @@ export const SendAppreciation = () => {
               setFormData({ ...formData, appreciationAddress: e.target.value })
             }
           >
-            <MenuItem value="">
+            <MenuItem value="" key="NoUser">
               <em>None</em>
             </MenuItem>
-            {usersAddress.map((user) => {
-              if (user.address !== accountAddress) {
-                return <MenuItem value={user.address}>{user.name}</MenuItem>;
-              } else {
-                return <div></div>;
-              }
+            {users.map((user) => {
+              return (
+                <MenuItem value={user.address} key={user.address}>
+                  {user.name}
+                </MenuItem>
+              );
             })}
+            {}
           </Select>
 
           <TextField
@@ -170,12 +233,12 @@ export const SendAppreciation = () => {
               setFormData({ ...formData, appreciationMessage: e.target.value })
             }
           >
-            <MenuItem value="">
+            <MenuItem value="" key="NoCompliment">
               <em>None</em>
             </MenuItem>
-            {compliments.map((compliment) => {
+            {compliments.map((compliment, i) => {
               return (
-                <MenuItem value={compliment.number}>
+                <MenuItem value={i} key={i}>
                   {compliment.message}
                 </MenuItem>
               );
@@ -185,6 +248,24 @@ export const SendAppreciation = () => {
             {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
           </Button>
         </form>
+        <Snackbar
+          open={showThanksApprovalSuccess}
+          autoHideDuration={5000}
+          onClose={handleCloseSnack}
+        >
+          <Alert onClose={handleCloseSnack} severity="success">
+            Thanks token transfer approved! Now approve sending.
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={showSendTokenSuccess}
+          autoHideDuration={5000}
+          onClose={handleCloseSnack}
+        >
+          <Alert onClose={handleCloseSnack} severity="success">
+            Thanks sent!
+          </Alert>
+        </Snackbar>
       </Box>
     </div>
   );

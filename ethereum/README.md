@@ -68,9 +68,16 @@ Make sure that there has been at least one deployment on a non-local blockchain.
   
 ### Locally
 
+#### Start the api backend
+```
+cd api
+npm start
+```
+
+#### Start the webpage
 ```
 cd front_end
-yarn start
+npm start
 ```
 
 ## Tip the creator
