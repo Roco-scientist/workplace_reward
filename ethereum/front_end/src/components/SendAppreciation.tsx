@@ -37,8 +37,8 @@ interface Compliment {
 
 export const SendAppreciation = () => {
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
-  const { account } = useEthers();
-  const accountAddress = account ? account : constants.AddressZero;
+  const { account, deactivate } = useEthers();
+  const [previousAccount, setPreviousAccount] = useState(constants.AddressZero);
 
   const defaultUsers: User[] = [];
   const [users, setUsers] = useState(defaultUsers);
@@ -47,6 +47,7 @@ export const SendAppreciation = () => {
   const [compliments, setCompliments] = useState(defaultCompliments);
 
   useEffect(() => {
+    const accountAddress = account ? account : constants.AddressZero;
     fetch("http://localhost:3080/api/users?accountAddress=" + accountAddress)
       .then((response) => response.json())
       .then((response) => setUsers(response));
@@ -56,7 +57,7 @@ export const SendAppreciation = () => {
     )
       .then((response) => response.json())
       .then((response) => setCompliments(response));
-  }, [setUsers, setCompliments, accountAddress]);
+  }, [setUsers, setCompliments, account]);
 
   // Setup notifications to display when transactions are a success
   const { notifications } = useNotifications();
@@ -70,6 +71,22 @@ export const SendAppreciation = () => {
     appreciationAmount: "",
     appreciationMessage: "",
   });
+
+  // Reset forms on address change or wallet disconnect.  Also disconnect wallet on address change
+  useEffect(() => {
+    const accountAddress = account ? account : constants.AddressZero;
+    if (accountAddress !== previousAccount) {
+      setFormData({
+        appreciationAddress: "",
+        appreciationAmount: "",
+        appreciationMessage: "",
+      });
+      if (previousAccount !== constants.AddressZero) {
+        deactivate();
+      }
+      setPreviousAccount(accountAddress);
+    }
+  }, [setFormData, account, previousAccount, deactivate]);
 
   // Retrieve the number of decimal places the Thanks token holds.  Smart contracts do
   // not have float, so ERC20 token use an integer and set the number of decimals.  Therefor,
