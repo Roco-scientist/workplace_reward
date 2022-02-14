@@ -23,7 +23,6 @@ import {
   SwapContract,
   ThanksContract,
 } from "./Common";
-import { URL, URLSearchParams } from "url";
 
 interface User {
   name: string;
@@ -113,33 +112,34 @@ export const SendAppreciation = () => {
   // During every render,  check if approval by the user was successfully added to the blockchain,
   // then check if the user has not yet sent the tokens.  If these conditions are met, send the thanks that were
   // approved
-  useEffect(() => {
-    if (
-      approveThanksState.status === "Success" &&
-      sendThanksState.status === "None"
-    ) {
-      const amount =
-        parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
-      sendThanks(BigInt(amount).toString(), formData.appreciationAddress);
-    }
-  }, [
-    approveThanksState,
-    sendThanks,
-    formData,
-    sendThanksState,
-    thanksDecimals,
-  ]);
-
   // If both transactions were a success reset to allow further transactions
   useEffect(() => {
-    if (
-      approveThanksState.status === "Success" &&
-      sendThanksState.status === "Success"
-    ) {
-      approveReset();
-      sendReset();
+    if (approveThanksState.status === "Success") {
+      // If coins have not been sent yet, send, otherwise reset
+      if (sendThanksState.status === "None") {
+        const amount =
+          parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
+        sendThanks(BigInt(amount).toString(), formData.appreciationAddress);
+      } else if (sendThanksState.status === "Success") {
+        approveReset();
+        sendReset();
+        setFormData({
+          appreciationAmount: "",
+          appreciationAddress: "",
+          appreciationMessage: "",
+        });
+      }
     }
-  });
+  }, [
+    setFormData,
+    approveReset,
+    sendReset,
+    approveThanksState,
+    sendThanksState,
+    formData,
+    sendThanks,
+    thanksDecimals,
+  ]);
 
   // Create status information that shows the user whether their thanks
   // token has been approved and whether it has been sent
@@ -191,7 +191,7 @@ export const SendAppreciation = () => {
     <div>
       <Box sx={BoxContainerStyle}>
         <Box sx={BoxHeaderStyle}>Send Appreciation</Box>
-        <form>
+        <form id="send-thanks-form">
           <InputLabel id="appreciation-address">Co-worker</InputLabel>
           <Select
             id="appreciation-address"
