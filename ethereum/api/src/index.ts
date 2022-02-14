@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import { constants } from 'ethers';
 
 const app = express();
 const port = 3080;
@@ -22,24 +23,48 @@ const users = [
   },
 ];
 
+const addresses: string[] = users.map((user) => user.address);
+
 const compliments = [
-  { message: "You're the best" },
-  { message: 'Could never have completed without you' },
-  { message: 'I owe you one' },
+  { message: "You're the best", group: 1 },
+  { message: 'Could never have completed without you', group: 1 },
+  { message: 'I owe you one', group: 1 },
 ];
 
 app.use(bodyParser.json());
 
 app.get('/api/users', (req, res) => {
+  const accountAddress = req.query.accountAddress;
+  let otherUsers;
+  if (accountAddress !== constants.AddressZero && addresses.includes(accountAddress.toString())) {
+    const user = users.find((userNew) => userNew.address === accountAddress);
+    otherUsers = users.filter(
+      (otherUser) =>
+        otherUser.group === user.group && otherUser.address !== accountAddress
+    );
+  } else {
+    otherUsers = [];
+  }
   console.log('api/users called');
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.json(users);
+  res.json(otherUsers);
 });
 
 app.get('/api/compliments', (req, res) => {
+  const accountAddress = req.query.accountAddress;
+
+  let groupCompliments;
+  if (accountAddress !== constants.AddressZero && addresses.includes(accountAddress.toString())) {
+    const user = users.find((userNew) => userNew.address === accountAddress);
+    groupCompliments = compliments.filter(
+      (compliment) => compliment.group === user.group
+    );
+  } else {
+    groupCompliments = [];
+  }
   console.log('api/compliments called');
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.json(compliments);
+  res.json(groupCompliments);
 });
 
 app.listen(port, () => {

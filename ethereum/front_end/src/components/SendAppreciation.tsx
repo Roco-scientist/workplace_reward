@@ -23,6 +23,7 @@ import {
   SwapContract,
   ThanksContract,
 } from "./Common";
+import { URL, URLSearchParams } from "url";
 
 interface User {
   name: string;
@@ -32,9 +33,14 @@ interface User {
 
 interface Compliment {
   message: string;
+  group: number;
 }
 
 export const SendAppreciation = () => {
+  // retrieve the account which is logged in and set the address to zeros if it is not logged in
+  const { account } = useEthers();
+  const accountAddress = account ? account : constants.AddressZero;
+
   const defaultUsers: User[] = [];
   const [users, setUsers] = useState(defaultUsers);
 
@@ -42,24 +48,22 @@ export const SendAppreciation = () => {
   const [compliments, setCompliments] = useState(defaultCompliments);
 
   useEffect(() => {
-    fetch("http://localhost:3080/api/users")
+    fetch("http://localhost:3080/api/users?accountAddress=" + accountAddress)
       .then((response) => response.json())
       .then((response) => setUsers(response));
 
-    fetch("http://localhost:3080/api/compliments")
+    fetch(
+      "http://localhost:3080/api/compliments?accountAddress=" + accountAddress
+    )
       .then((response) => response.json())
       .then((response) => setCompliments(response));
-  }, [setUsers, setCompliments]);
+  }, [setUsers, setCompliments, accountAddress]);
 
   // Setup notifications to display when transactions are a success
   const { notifications } = useNotifications();
 
   // Get the swap contract to perform contract functions later
   const swapContract = SwapContract();
-
-  // retrieve the account which is logged in and set the address to zeros if it is not logged in
-  const { account } = useEthers();
-  const accountAddress = account ? account : constants.AddressZero;
 
   // data that is set by the form
   const [formData, setFormData] = useState({
@@ -201,15 +205,11 @@ export const SendAppreciation = () => {
               <em>None</em>
             </MenuItem>
             {users.map((user) => {
-              if (user.address !== accountAddress) {
-                return (
-                  <MenuItem value={user.address} key={user.address}>
-                    {user.name}
-                  </MenuItem>
-                );
-              } else {
-                return <div key="Empty"></div>;
-              }
+              return (
+                <MenuItem value={user.address} key={user.address}>
+                  {user.name}
+                </MenuItem>
+              );
             })}
             {}
           </Select>
