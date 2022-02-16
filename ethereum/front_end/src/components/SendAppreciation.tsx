@@ -36,7 +36,7 @@ interface Compliment {
 }
 
 export const SendAppreciation = () => {
-  // retrieve the account which is logged in and set the address to zeros if it is not logged in
+  // retrieve the account which is logged in
   const { account, deactivate } = useEthers();
   const [previousAccount, setPreviousAccount] = useState(constants.AddressZero);
 
@@ -81,6 +81,7 @@ export const SendAppreciation = () => {
         appreciationAmount: "",
         appreciationMessage: "",
       });
+      // console.log("Previous acct: " + previousAccount + " CurrentAcct: " + accountAddress);
       if (previousAccount !== constants.AddressZero) {
         deactivate();
       }
