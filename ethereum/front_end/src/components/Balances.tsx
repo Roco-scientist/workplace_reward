@@ -2,12 +2,10 @@ import { useCall, useEthers, useTokenBalance } from "@usedapp/core";
 import networkMapping from "../contract_map.json";
 import { BigNumber, constants } from "ethers";
 import { Box, List, ListItem, ListItemText } from "@mui/material";
-import { BoxContainerStyle, BoxHeaderStyle, RewardsContract, ThanksContract } from "./Common";
+import { BoxContainerStyle, BoxHeaderStyle, deployNumber, RewardsContract, ThanksContract } from "./Common";
 import { formatUnits } from '@ethersproject/units'
 
 export const Balances = () => {
-  // set deploy number from the brownie deoploy.  Change this later
-  const deployNumber = 1;
 
   // get account and chain id of the connected wallet
   const { chainId, account } = useEthers();

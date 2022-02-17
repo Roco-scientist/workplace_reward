@@ -7,7 +7,7 @@ import thanks from "../ThankYouToken.json";
 import rewards from "../RewardToken.json";
 
 // set deploy number from the brownie deoploy.  Change this later
-const deployNumber = 1;
+export const deployNumber = 2;
 
 // Styles for the header box
 export const BoxHeaderStyle = {
