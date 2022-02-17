@@ -64,8 +64,8 @@ Costs:
 2022-02-17 V2 on fuji Avalanche test network:
 - [Deploy Address](https://testnet.avascan.info/blockchain/c/address/0x839901c21D20316b0DDcA205AAe53A1EbB886cf4)
 - [Swap](https://testnet.avascan.info/blockchain/c/address/0x7B652A331D18435ec0A60Bbde921b694e33dC8ea)
-- [Thank you token](https://ropsten.etherscan.io/address/)
-- [Reward token](https://ropsten.etherscan.io/address/0x808cF232F973CF0bBB480C27d476E6C5581bbC62)
+- [Thank you token](https://testnet.avascan.info/blockchain/c/address/0xC77E0748A0B611C7aF08a72fF855c5a431BB4a6C)
+- [Reward token](https://testnet.avascan.info/blockchain/c/address/0x3D5597e5325eCeB2871A6132E680E0CCCc61204f)
 
 Costs:
 - Deployment
