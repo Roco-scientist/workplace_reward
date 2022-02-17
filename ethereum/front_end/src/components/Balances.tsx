@@ -27,7 +27,7 @@ export const Balances = () => {
       : constants.AddressZero;
 
     rewardsAddress = chainId
-      ? networkMapping[stringChainId]["RewardsToken"][deployNumber]
+      ? networkMapping[stringChainId]["RewardToken"][deployNumber]
       : constants.AddressZero;
 
     if (isConnected) {

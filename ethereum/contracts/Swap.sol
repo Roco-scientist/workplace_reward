@@ -9,6 +9,7 @@ contract Swap is Ownable {
     IERC20Custom public ThanksContract;
 
     event Sent(address indexed _from, address indexed _to, uint256 _amount, uint256 _message);
+    event redeemed(address indexed _redeemer, uint256 _amount);
 
     constructor(address _rewardsAddress, address _thanksAddress) public {
         RewardsContract = IERC20Custom(_rewardsAddress);
@@ -38,21 +39,32 @@ contract Swap is Ownable {
         require(RewardsContract.balanceOf(msg.sender) >= amount, "Trying to redeem more rewards than you are holding");
 
         RewardsContract.transferFrom(msg.sender, address(this), amount);
+        emit redeemed(msg.sender, amount);
     }
 
     // Distribute the thank you tokens contained within the contract.  This equally distributes
-    // any tokens to all added users.  This will be modified with better logic later
+    // any tokens to all added users.  
     function distribute(address[] memory recipients, uint256 amount) public onlyOwner {
         // Make sure there are recepients
         require(recipients.length > 0, "No recipient addresses");
         require((recipients.length * amount) <= ThanksContract.balanceOf(address(this)), "Not enough thanks tokens within the contract to fund recipients.  Mint more tokens.");
 
-        // Determine how many thank you tokens to send to each user, then iterate and send
+        // Send the thank you tokens to each address
         for (uint256 userIndex; userIndex < recipients.length; userIndex++) {
             ThanksContract.transfer(recipients[userIndex], amount);
         }
     }
 
+    // Directly send minted thanks tokens to users.  This is more gas efficient
+    function mintThanksToUsers(address[] memory recipients, uint256 amount) public onlyOwner {
+        RewardsContract.mint(address(this), amount * recipients.length);
+        // mint the thank you tokens to each address
+        for (uint256 userIndex; userIndex < recipients.length; userIndex++) {
+            ThanksContract.mint(recipients[userIndex], amount);
+        }
+    }
+
+    // Mint tokens to the contract to replenish or increase the rewards/thanks tokens
     function addMintedTokens(uint256 amountThanks, uint256 amountRewards) public onlyOwner {
         RewardsContract.mint(address(this), amountRewards);
         ThanksContract.mint(address(this), amountThanks);

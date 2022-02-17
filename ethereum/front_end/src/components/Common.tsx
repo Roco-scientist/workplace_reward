@@ -4,7 +4,7 @@ import networkMapping from "../contract_map.json";
 import { constants } from "ethers";
 import swap from "../Swap.json";
 import thanks from "../ThankYouToken.json";
-import rewards from "../RewardsToken.json";
+import rewards from "../RewardToken.json";
 
 // set deploy number from the brownie deoploy.  Change this later
 const deployNumber = 1;
@@ -74,7 +74,7 @@ export const RewardsContract = () => {
   const rewardsAddress =
     stringChainId in networkMapping
       ? chainId
-        ? networkMapping[stringChainId]["RewardsToken"][deployNumber]
+        ? networkMapping[stringChainId]["RewardToken"][deployNumber]
         : constants.AddressZero
       : constants.AddressZero;
 

@@ -14,6 +14,8 @@ def test_all():
     user_1 = accounts[1]
     user_2 = accounts[2]
     user_3 = accounts[3]
+    user_4 = accounts[4]
+    user_5 = accounts[5]
 
     # Deploy tokens and swap contracts with deployer account
     swap_contract, rewards_contract, thanks_contract = deployRewards.run_all()
@@ -52,3 +54,14 @@ def test_all():
     with pytest.raises(exceptions.VirtualMachineError):
         swap_contract.withdrawToken(thanks_contract.address, 10 * DECIMALS, {"from": user_3})
 
+    # test minting authority
+    with pytest.raises(exceptions.VirtualMachineError):
+        swap_contract.mintThanksToUsers([user_3], 10 * DECIMALS, {"from": user_3})
+
+    # test mintint to users
+    starting_rewards = rewards_contract.balanceOf(swap_contract.address)
+    mint_amount = 10 * DECIMALS
+    swap_contract.mintThanksToUsers([user_4, user_5], mint_amount)
+    assert starting_rewards + (2 * mint_amount) == rewards_contract.balanceOf(swap_contract.address), "Minted rewards not sent to swap contract"
+    assert thanks_contract.balanceOf(user_4) == mint_amount, "Minted thanks not sent to user"
+    assert thanks_contract.balanceOf(user_5) == mint_amount, "Minted thanks not sent to user"
