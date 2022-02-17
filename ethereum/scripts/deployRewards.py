@@ -1,4 +1,4 @@
-from brownie import RewardsToken, ThankYouToken, Swap, network
+from brownie import RewardToken, ThankYouToken, Swap, network
 from scripts.helpful_scripts import get_account, LOCAL_BLOCKCHAIN_ENVIRONMENTS
 import yaml
 import json
@@ -10,40 +10,27 @@ DECIMALS = 10 ** NUM_DECIMALS
 INITIAL_SUPPLY = 10 ** 6
 
 
-def deploy_rewards(supply: int, account):
-    rewards_contract = RewardsToken.deploy(supply, {"from": account})
-    print(
-        f"Contract deployed {rewards_contract.balanceOf(account) / DECIMALS} reward tokens to {rewards_contract.address}"
-    )
+def deploy_rewards(account):
+    rewards_contract = RewardToken.deploy({"from": account})
     return rewards_contract
 
 
-def deploy_thanks(supply: int, account):
-    thanks_contract = ThankYouToken.deploy(supply, {"from": account})
-    print(
-        f"Contract deployed {thanks_contract.balanceOf(account) / DECIMALS} thanks tokens to {thanks_contract.address}"
-    )
+def deploy_thanks(account):
+    thanks_contract = ThankYouToken.deploy({"from": account})
     return thanks_contract
 
 
-def deploy_swap(account, rewards_contract, thanks_contract):
+def deploy_swap(account, rewards_contract, thanks_contract, supply):
     swap_contract = Swap.deploy(
         rewards_contract.address, thanks_contract.address, {"from": account}
     )
-    return swap_contract
-
-
-def transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_contract):
-    rewards_contract.transfer(
-        swap_contract.address, rewards_contract.balanceOf(account)
-    )
-    tx = thanks_contract.transfer(
-        swap_contract.address, thanks_contract.balanceOf(account)
-    )
-    tx.wait(1)
+    rewards_contract.grantRole(rewards_contract.MINTER_ROLE(), swap_contract.address, {"from": account})
+    thanks_contract.grantRole(thanks_contract.MINTER_ROLE(), swap_contract.address, {"from": account})
+    swap_contract.addMintedTokens(supply, supply, {"from": account})
     print(
         f"Swap contract now contains {rewards_contract.balanceOf(swap_contract.address) / DECIMALS} rewards and {thanks_contract.balanceOf(swap_contract.address) / DECIMALS} thanks"
     )
+    return swap_contract
 
 
 def update_front_end():
@@ -59,8 +46,8 @@ def update_front_end():
     contracts_thanks = Path("./build/contracts/ThankYouToken.json")
     shutil.copy(contracts_thanks, front_end_thanks)
 
-    front_end_rewards = Path("./front_end/src/RewardsToken.json")
-    contracts_rewards = Path("./build/contracts/RewardsToken.json")
+    front_end_rewards = Path("./front_end/src/RewardToken.json")
+    contracts_rewards = Path("./build/contracts/RewardToken.json")
     shutil.copy(contracts_rewards, front_end_rewards)
 
     print("Front end updated")
@@ -69,10 +56,9 @@ def update_front_end():
 def run_all():
     supply = INITIAL_SUPPLY * DECIMALS
     account = get_account()
-    rewards_contract = deploy_rewards(supply, account)
-    thanks_contract = deploy_thanks(supply, account)
-    swap_contract = deploy_swap(account, rewards_contract, thanks_contract)
-    transfer_coins_to_swap(account, rewards_contract, thanks_contract, swap_contract)
+    rewards_contract = deploy_rewards(account)
+    thanks_contract = deploy_thanks(account)
+    swap_contract = deploy_swap(account, rewards_contract, thanks_contract, supply)
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         update_front_end()
     return swap_contract, rewards_contract, thanks_contract

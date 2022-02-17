@@ -19,14 +19,16 @@ def test_send_rewards():
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip("only for local testing")
     account = get_account()
-    rewards = deployRewards.deploy_rewards(SUPPLY, account)
+    rewards = deployRewards.deploy_rewards(account)
+    rewards.mint(account, 10 * DECIMALS, {"from": account})
     finish_send(account, rewards)
 
 def test_send_thanks():
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip("only for local testing")
     account = get_account()
-    thanks = deployRewards.deploy_thanks(SUPPLY, account)
+    thanks = deployRewards.deploy_thanks(account)
+    thanks.mint(account, 10 * DECIMALS, {"from": account})
     finish_send(account, thanks)
 
 
@@ -35,11 +37,12 @@ def test_authority():
         pytest.skip("only for local testing")
     authorized_account = get_account()
     unauthorized_account = accounts[1]
-    transfer_to_address = accounts[2]
-    transfer_amount = 10 * DECIMALS
-    thanks = deployRewards.deploy_thanks(SUPPLY, authorized_account)
-    rewards = deployRewards.deploy_rewards(SUPPLY, authorized_account)
+    unauthorized_account_2 = accounts[2]
+    thanks = deployRewards.deploy_thanks(authorized_account)
+    rewards = deployRewards.deploy_rewards(authorized_account)
     with pytest.raises(exceptions.VirtualMachineError):
-        thanks.transfer(transfer_to_address, transfer_amount, {"from": unauthorized_account})
+        thanks.mint(unauthorized_account, 10**9 * DECIMALS, {"from": unauthorized_account})
+        thanks.mint(unauthorized_account_2, 10**9 * DECIMALS, {"from": unauthorized_account})
     with pytest.raises(exceptions.VirtualMachineError):
-        rewards.transfer(transfer_to_address, transfer_amount, {"from": unauthorized_account})
+        rewards.mint(unauthorized_account, 10**9 * DECIMALS, {"from": unauthorized_account})
+        rewards.mint(unauthorized_account_2, 10**9 * DECIMALS, {"from": unauthorized_account})

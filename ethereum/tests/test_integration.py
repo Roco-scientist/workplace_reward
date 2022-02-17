@@ -18,18 +18,14 @@ def test_all():
     # Deploy tokens and swap contracts with deployer account
     swap_contract, rewards_contract, thanks_contract = deployRewards.run_all()
 
-    # Add user 1 and 2 to the contract
-    swap_contract.addAddress(user_1, {"from": deployer_account})
-    swap_contract.addAddress(user_2, {"from": deployer_account})
-
     # Evenly distribute thanks tokens to user_1 and user_2
-    swap_contract.distribute({"from": deployer_account})
+    swap_contract.distribute([user_1, user_2], (SUPPLY / 2) - 1000, {"from": deployer_account})
     print(f"""User 1:\n\tthanks:{thanks_contract.balanceOf(user_1) / DECIMALS}\n\trewards:{rewards_contract.balanceOf(user_1) / DECIMALS}\nUser 2:\n\tthanks:{thanks_contract.balanceOf(user_2) / DECIMALS}\n\trewards:{rewards_contract.balanceOf(user_2) / DECIMALS}""")
 
     # Send 10 thanks tokens from user 1 to user 2
     thanks_contract.approve(swap_contract.address, 10 * DECIMALS, {"from": user_1})
     user_1_original_thanks_qty = thanks_contract.balanceOf(user_1)
-    swap_contract.sendThanks(10 * DECIMALS, user_2, {"from": user_1})
+    swap_contract.sendThanks(10 * DECIMALS, user_2, 1, {"from": user_1})
     print("Thanks sent")
     print(f"""User 1:\n\tthanks:{thanks_contract.balanceOf(user_1) / DECIMALS}\n\trewards:{rewards_contract.balanceOf(user_1) / DECIMALS}\nUser 2:\n\tthanks:{thanks_contract.balanceOf(user_2) / DECIMALS}\n\trewards:{rewards_contract.balanceOf(user_2) / DECIMALS}""")
     # Test for proper thanks sent and rewards received
@@ -38,9 +34,7 @@ def test_all():
 
     # test authority of using swap contract
     with pytest.raises(exceptions.VirtualMachineError):
-        swap_contract.addAddress(user_1, {"from": user_3})
-    with pytest.raises(exceptions.VirtualMachineError):
-        swap_contract.distribute({"from": user_3})
+        swap_contract.distribute([user_3], 100, {"from": user_3})
 
     # test sending Eth and removing eth
     user_1.transfer(swap_contract.address, "1 ether")
