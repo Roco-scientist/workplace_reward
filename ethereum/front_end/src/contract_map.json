@@ -12,5 +12,16 @@
       "0x131432D246122B94FeD14873C2c05A154EC93122",
       "0xC77E0748A0B611C7aF08a72fF855c5a431BB4a6C"
     ]
+  },
+  "43113": {
+    "RewardToken": [
+      "0x3D5597e5325eCeB2871A6132E680E0CCCc61204f"
+    ],
+    "Swap": [
+      "0x7B652A331D18435ec0A60Bbde921b694e33dC8ea"
+    ],
+    "ThankYouToken": [
+      "0xC77E0748A0B611C7aF08a72fF855c5a431BB4a6C"
+    ]
   }
 }

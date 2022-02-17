@@ -44,7 +44,7 @@ Tests found in [test folder](./tests)
 `brownie run ./scripts/deployRewards.py --network ropsten`
 
 ### Deployed  
-2022-02-07 on ropsten test network:  
+2022-02-07 V1 on ropsten test network:  
 - [Deploy Address](https://ropsten.etherscan.io/address/0x839901c21D20316b0DDcA205AAe53A1EbB886cf4)
 - [Swap](https://ropsten.etherscan.io/address/0xd9398D03794919215A2f7191e1FaBb4C9EeCBfdD)
 - [Thank you token](https://ropsten.etherscan.io/address/0x131432D246122B94FeD14873C2c05A154EC93122)
@@ -61,6 +61,15 @@ Costs:
   - Approve: 0.00005463063 eth
   - Send: 0.000184344972 eth
 
+2022-02-17 V2 on fuji Avalanche test network:
+- [Deploy Address](https://testnet.avascan.info/blockchain/c/address/0x839901c21D20316b0DDcA205AAe53A1EbB886cf4)
+- [Swap](https://testnet.avascan.info/blockchain/c/address/0x7B652A331D18435ec0A60Bbde921b694e33dC8ea)
+- [Thank you token](https://ropsten.etherscan.io/address/)
+- [Reward token](https://ropsten.etherscan.io/address/0x808cF232F973CF0bBB480C27d476E6C5581bbC62)
+
+Costs:
+- Deployment
+  - 0.0995 AVAX with gas at 25 gwei ($9)
   
 ## Run front end
 
