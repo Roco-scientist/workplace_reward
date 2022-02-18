@@ -2,41 +2,22 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../interfaces/IERC20Custom.sol";
 
 contract Swap is Ownable {
-    IERC20 public RewardsContract;
-    IERC20 public ThanksContract;
-    address[] public validRecipientAddresses;
+    IERC20Custom public RewardsContract;
+    IERC20Custom public ThanksContract;
 
-    event Sent(address indexed _from, address indexed _to, uint256 _amount);
+    event Sent(address indexed _from, address indexed _to, uint256 _amount, uint256 _message);
+    event redeemed(address indexed _redeemer, uint256 _amount);
 
     constructor(address _rewardsAddress, address _thanksAddress) public {
-        RewardsContract = IERC20(_rewardsAddress);
-        ThanksContract = IERC20(_thanksAddress);
-    }
-
-    // Adds user address to the contract.  This is to limit the addresses which can interact with the contract.  
-    // Can only be added by the person that deploys the contract
-    function addAddress(address newRecipientAddress) public onlyOwner{
-        validRecipientAddresses.push(newRecipientAddress);
-    }
-
-    // Returns whether or not the user address has already been added to the contract
-    function addressSetup(address userAddress) public view returns(bool) {
-        for (uint i=0; i < validRecipientAddresses.length; i++) {
-            if (validRecipientAddresses[i] == userAddress) {
-                return true;
-            }
-        }
-        return false;
+        RewardsContract = IERC20Custom(_rewardsAddress);
+        ThanksContract = IERC20Custom(_thanksAddress);
     }
 
     // Function which takes in a thank you token and send a reward token to the user indicated
-    function sendThanks(uint256 amount, address toAddress) public {
-        // make sure both sender and receiver were already added to the contract
-        require(addressSetup(msg.sender), "User not yet setup");
-        require(addressSetup(toAddress), "Recipient not yet setup");
+    function sendThanks(uint256 amount, address toAddress, uint256 message) public {
         // Make sure there are enough coins in both the senders address and within the contract to send
         // and convert
         require(ThanksContract.balanceOf(msg.sender) >= amount, "Not enough thank yous to send");
@@ -49,33 +30,49 @@ contract Swap is Ownable {
         // Transfer the reward token to the thanked user
         RewardsContract.transfer(toAddress, amount);
 
-        emit Sent(msg.sender, toAddress, amount);
+        emit Sent(msg.sender, toAddress, amount, message);
     }
 
     // Redeem tokens for awards.  This still needs work
     function redeem(uint256 amount) public {
-        require(addressSetup(msg.sender), "User not yet setup");
+        // require(addressSetup(msg.sender), "User not yet setup");
         require(RewardsContract.balanceOf(msg.sender) >= amount, "Trying to redeem more rewards than you are holding");
 
         RewardsContract.transferFrom(msg.sender, address(this), amount);
+        emit redeemed(msg.sender, amount);
     }
 
     // Distribute the thank you tokens contained within the contract.  This equally distributes
-    // any tokens to all added users.  This will be modified with better logic later
-    function distribute() public onlyOwner {
-        // Make sure there are users setup
-        require(validRecipientAddresses.length > 0, "No recipient addresses added yet");
+    // any tokens to all added users.  
+    function distribute(address[] memory recipients, uint256 amount) public onlyOwner {
+        // Make sure there are recepients
+        require(recipients.length > 0, "No recipient addresses");
+        require((recipients.length * amount) <= ThanksContract.balanceOf(address(this)), "Not enough thanks tokens within the contract to fund recipients.  Mint more tokens.");
 
-        // Determine how many thank you tokens to send to each user, then iterate and send
-        uint eachShare = ThanksContract.balanceOf(address(this)) / validRecipientAddresses.length;
-        for (uint256 userIndex; userIndex < validRecipientAddresses.length; userIndex++) {
-            ThanksContract.transfer(validRecipientAddresses[userIndex], eachShare);
+        // Send the thank you tokens to each address
+        for (uint256 userIndex; userIndex < recipients.length; userIndex++) {
+            ThanksContract.transfer(recipients[userIndex], amount);
         }
+    }
+
+    // Directly send minted thanks tokens to users.  This is more gas efficient
+    function mintThanksToUsers(address[] memory recipients, uint256 amount) public onlyOwner {
+        RewardsContract.mint(address(this), amount * recipients.length);
+        // mint the thank you tokens to each address
+        for (uint256 userIndex; userIndex < recipients.length; userIndex++) {
+            ThanksContract.mint(recipients[userIndex], amount);
+        }
+    }
+
+    // Mint tokens to the contract to replenish or increase the rewards/thanks tokens
+    function addMintedTokens(uint256 amountThanks, uint256 amountRewards) public onlyOwner {
+        RewardsContract.mint(address(this), amountRewards);
+        ThanksContract.mint(address(this), amountThanks);
     }
 
     // Allow the ability to withdraw tokens that were not supposed to be deposited
     function withdrawToken(address _tokenContract, uint256 _amount) public onlyOwner {
-        IERC20 tokenContract = IERC20(_tokenContract);
+        IERC20Custom tokenContract = IERC20Custom(_tokenContract);
         
         // transfer the token from address of this contract
         // to address of the user (executing the withdrawToken() function)

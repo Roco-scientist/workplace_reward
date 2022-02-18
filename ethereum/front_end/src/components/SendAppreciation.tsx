@@ -1,10 +1,11 @@
 import {
   useContractFunction,
-  useCall,
   useEthers,
   useNotifications,
+  useToken,
+  useTokenAllowance,
 } from "@usedapp/core";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import {
   Alert,
   Box,
@@ -22,23 +23,16 @@ import {
   BoxHeaderStyle,
   SwapContract,
   ThanksContract,
+  User,
+  Compliment,
 } from "./Common";
 
-interface User {
-  name: string;
-  address: string;
-  group: number;
-}
-
-interface Compliment {
-  message: string;
-  group: number;
-}
-
 export const SendAppreciation = () => {
-  // retrieve the account which is logged in and set the address to zeros if it is not logged in
+  // retrieve the account which is logged in
   const { account, deactivate } = useEthers();
   const [previousAccount, setPreviousAccount] = useState(constants.AddressZero);
+
+  const thanksContract = ThanksContract();
 
   const defaultUsers: User[] = [];
   const [users, setUsers] = useState(defaultUsers);
@@ -48,7 +42,9 @@ export const SendAppreciation = () => {
 
   useEffect(() => {
     const accountAddress = account ? account : constants.AddressZero;
-    fetch("http://localhost:3080/api/users?accountAddress=" + accountAddress)
+    fetch(
+      "http://localhost:3080/api/users/other?accountAddress=" + accountAddress
+    )
       .then((response) => response.json())
       .then((response) => setUsers(response));
 
@@ -64,6 +60,15 @@ export const SendAppreciation = () => {
 
   // Get the swap contract to perform contract functions later
   const swapContract = SwapContract();
+
+  const _alreadyAllowedSend = useTokenAllowance(
+    thanksContract.address,
+    account ? account : constants.AddressZero,
+    swapContract.address
+  );
+  const alreadyAllowedSend = _alreadyAllowedSend
+    ? _alreadyAllowedSend
+    : BigNumber.from(0);
 
   // data that is set by the form
   const [formData, setFormData] = useState({
@@ -81,6 +86,7 @@ export const SendAppreciation = () => {
         appreciationAmount: "",
         appreciationMessage: "",
       });
+      // console.log("Previous acct: " + previousAccount + " CurrentAcct: " + accountAddress);
       if (previousAccount !== constants.AddressZero) {
         deactivate();
       }
@@ -91,14 +97,10 @@ export const SendAppreciation = () => {
   // Retrieve the number of decimal places the Thanks token holds.  Smart contracts do
   // not have float, so ERC20 token use an integer and set the number of decimals.  Therefor,
   // whatever input value the user puts, this needs to be multiplied by 10^DECIMALS
-  let thanksDecimalsResult = useCall({
-    contract: ThanksContract(),
-    method: "decimals",
-    args: [],
-  });
-  const thanksDecimals = thanksDecimalsResult
-    ? thanksDecimalsResult.value
-      ? thanksDecimalsResult.value[0]
+  const thanksInfo = useToken(thanksContract.address);
+  const thanksDecimals = thanksInfo
+    ? thanksInfo.decimals
+      ? thanksInfo.decimals
       : 18
     : 18;
 
@@ -110,11 +112,19 @@ export const SendAppreciation = () => {
   } = useContractFunction(ThanksContract(), "approve", {
     transactionName: "Approve Thanks token send",
   });
-  const approveAndSendThanks = () => {
-    const amount =
-      parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
 
-    approveThanks(swapContract.address, BigInt(amount).toString());
+  const [approvedExcess, setApprovedExcess] = useState(false);
+
+  const approveAndSendThanks = () => {
+    let amount = BigNumber.from(
+      parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals
+    );
+    if (alreadyAllowedSend >= amount) {
+      setApprovedExcess(true);
+    } else {
+      // amount = amount - alreadyAllowedSend;
+      approveThanks(swapContract.address, amount.toString());
+    }
   };
 
   // Send thanks to other user
@@ -131,14 +141,22 @@ export const SendAppreciation = () => {
   // approved
   // If both transactions were a success reset to allow further transactions
   useEffect(() => {
-    if (approveThanksState.status === "Success") {
+    if (approveThanksState.status === "Success" || approvedExcess) {
+      if (sendThanksState.errorMessage) {
+        console.log("Send thanks error: " + sendThanksState.errorMessage);
+      }
       // If coins have not been sent yet, send, otherwise reset
       if (sendThanksState.status === "None") {
         const amount =
           parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
-        sendThanks(BigInt(amount).toString(), formData.appreciationAddress);
+        sendThanks(
+          BigInt(amount).toString(),
+          formData.appreciationAddress,
+          formData.appreciationMessage
+        );
       } else if (sendThanksState.status === "Success") {
         approveReset();
+        setApprovedExcess(false);
         sendReset();
         setFormData({
           appreciationAmount: "",
@@ -156,6 +174,7 @@ export const SendAppreciation = () => {
     formData,
     sendThanks,
     thanksDecimals,
+    approvedExcess,
   ]);
 
   // Create status information that shows the user whether their thanks
@@ -174,7 +193,8 @@ export const SendAppreciation = () => {
         (notification) =>
           notification.type === "transactionSucceed" &&
           notification.transactionName === "Approve Thanks token send"
-      ).length > 0
+      ).length > 0 ||
+      approvedExcess
     ) {
       setShowThanksApprovalSuccess(true);
       setShowSendTokenSuccess(false);
@@ -189,7 +209,12 @@ export const SendAppreciation = () => {
       setShowThanksApprovalSuccess(false);
       setShowSendTokenSuccess(true);
     }
-  }, [notifications, showThanksApprovalSuccess, showSendTokenSuccess]);
+  }, [
+    notifications,
+    showThanksApprovalSuccess,
+    showSendTokenSuccess,
+    approvedExcess,
+  ]);
 
   // Test to see if the app is busy either getting approval or sending the coin.
   // This is used to set the submit button to disabled
@@ -224,7 +249,7 @@ export const SendAppreciation = () => {
             {users.map((user) => {
               return (
                 <MenuItem value={user.address} key={user.address}>
-                  {user.name}
+                  {user.firstName + " " + user.lastName}
                 </MenuItem>
               );
             })}

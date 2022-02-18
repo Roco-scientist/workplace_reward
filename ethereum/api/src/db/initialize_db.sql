@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS Users (
+    address VARCHAR(60) PRIMARY KEY NOT NULL,
+    firstName VARCHAR(20) NOT NULL,
+    lastName VARCHAR(20) NOT NULL,
+    company VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Compliments (
+    message VARCHAR(100) NOT NULL,
+    company VARCHAR(100) NOT NULL
+);
