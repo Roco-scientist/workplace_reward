@@ -7,11 +7,13 @@ import {
 } from "@usedapp/core";
 import { constants } from "ethers";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
   List,
   ListItem,
+  Snackbar,
   TextField,
 } from "@mui/material";
 import { DataGrid, GridRowId, GridToolbar } from "@mui/x-data-grid";
@@ -133,6 +135,11 @@ export const Admin = () => {
       .then((response) => setCompanyUsers(response));
   }, [setCompanyUsers, account]);
 
+  const [showSendThanksSuccess, setShowSendThanksSuccess] = useState(false);
+  const handleCloseSnack = () => {
+    setShowSendThanksSuccess(false);
+  };
+
   useEffect(() => {
     if (
       notifications.filter(
@@ -141,6 +148,7 @@ export const Admin = () => {
           notification.transactionName === "Distribute thanks tokens"
       ).length > 0
     ) {
+      setShowSendThanksSuccess(true);
       setSelectedIds([]);
       setDistributeAmount("");
     }
@@ -209,6 +217,15 @@ export const Admin = () => {
               </Button>
             </ListItem>
           </List>
+          <Snackbar
+            open={showSendThanksSuccess}
+            autoHideDuration={5000}
+            onClose={handleCloseSnack}
+          >
+            <Alert onClose={handleCloseSnack} severity="success">
+              Thanks tokens transferred!
+            </Alert>
+          </Snackbar>
         </Box>
       </div>
     );
