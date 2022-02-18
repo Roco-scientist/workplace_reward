@@ -18,7 +18,9 @@ export const dbConnect = async () => {
 
 // User information that is used to send thanks for rewards
 export interface User {
-  name: string;
+  id: number;
+  firstName: string;
+  lastName: string;
   address: string;
 }
 
@@ -44,12 +46,16 @@ export const initialize = async () => {
   });
 };
 
-export const queryUsers = async (address: string, db: Database) => {
+export const queryUsers = async (address: string, db: Database, all: boolean) => {
   // console.log("Query user table");
-  const otherUsers = await db.all<User[]>(
-    `SELECT address, name FROM Users WHERE address != ? AND company IN (SELECT company FROM Users WHERE address = ?)`,
-    [address, address]
+  let otherUsers = await db.all<User[]>(
+    `SELECT rowid AS id, firstName, lastName, address FROM Users WHERE company IN (SELECT company FROM Users WHERE address = ?) ORDER BY lastName`,
+    [address]
   );
+  
+  if (!all) {
+    otherUsers = otherUsers.filter((user) => user.address != address);
+  }
 
   // console.log("Other users sent:");
   // console.log(otherUsers);

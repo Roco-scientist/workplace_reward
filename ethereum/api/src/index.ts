@@ -18,7 +18,7 @@ dbConnect()
     app.use(bodyParser.json());
 
     // Get request for all other users from the same company
-    app.get("/api/users", async (req, res) => {
+    app.get("/api/users/other", async (req, res) => {
       // The address of the incoming REST get in order to narrow down the response to only the data
       // that is connected to the company which the address is coming from
       const accountAddress = req.query.accountAddress.toString();
@@ -27,7 +27,7 @@ dbConnect()
       // If the incoming account address is not 0000 and is registered then narrow down the users
       // that are within the same company and send back.  Otherwise, send back an empty list
       if (accountAddress !== constants.AddressZero) {
-        otherUsers = await queryUsers(accountAddress, db);
+        otherUsers = await queryUsers(accountAddress, db, false);
       } else {
         otherUsers = [];
       }
@@ -35,6 +35,26 @@ dbConnect()
       // console.log(otherUsers);
       res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
       res.json(otherUsers);
+    });
+
+    // Get request for all users from the same company
+    app.get("/api/users/all", async (req, res) => {
+      // The address of the incoming REST get in order to narrow down the response to only the data
+      // that is connected to the company which the address is coming from
+      const accountAddress = req.query.accountAddress.toString();
+
+      let allUsers: User[];
+      // If the incoming account address is not 0000 and is registered then narrow down the users
+      // that are within the same company and send back.  Otherwise, send back an empty list
+      if (accountAddress !== constants.AddressZero) {
+        allUsers = await queryUsers(accountAddress, db, true);
+      } else {
+        allUsers = [];
+      }
+      // console.log("API other users:");
+      // console.log(otherUsers);
+      res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+      res.json(allUsers);
     });
 
     // REST response for get the compliments that are associated with the users company

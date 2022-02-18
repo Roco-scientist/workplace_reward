@@ -22,18 +22,9 @@ import {
   BoxHeaderStyle,
   SwapContract,
   ThanksContract,
+  User,
+  Compliment,
 } from "./Common";
-
-interface User {
-  name: string;
-  address: string;
-  group: number;
-}
-
-interface Compliment {
-  message: string;
-  group: number;
-}
 
 export const SendAppreciation = () => {
   // retrieve the account which is logged in
@@ -48,7 +39,9 @@ export const SendAppreciation = () => {
 
   useEffect(() => {
     const accountAddress = account ? account : constants.AddressZero;
-    fetch("http://localhost:3080/api/users?accountAddress=" + accountAddress)
+    fetch(
+      "http://localhost:3080/api/users/other?accountAddress=" + accountAddress
+    )
       .then((response) => response.json())
       .then((response) => setUsers(response));
 
@@ -133,11 +126,14 @@ export const SendAppreciation = () => {
   // If both transactions were a success reset to allow further transactions
   useEffect(() => {
     if (approveThanksState.status === "Success") {
+      if (sendThanksState.errorMessage) {
+        console.log("Send thanks error: " + sendThanksState.errorMessage);
+      }
       // If coins have not been sent yet, send, otherwise reset
       if (sendThanksState.status === "None") {
         const amount =
           parseFloat(formData.appreciationAmount) * 10 ** thanksDecimals;
-        sendThanks(BigInt(amount).toString(), formData.appreciationAddress);
+        sendThanks(BigInt(amount).toString(), formData.appreciationAddress, formData.appreciationMessage);
       } else if (sendThanksState.status === "Success") {
         approveReset();
         sendReset();
@@ -225,7 +221,7 @@ export const SendAppreciation = () => {
             {users.map((user) => {
               return (
                 <MenuItem value={user.address} key={user.address}>
-                  {user.name}
+                  {user.firstName + " " + user.lastName}
                 </MenuItem>
               );
             })}

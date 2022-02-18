@@ -7,7 +7,7 @@ import thanks from "../ThankYouToken.json";
 import rewards from "../RewardToken.json";
 
 // set deploy number from the brownie deoploy.  Change this later
-export const deployNumber = 2;
+export const deployNumber = 0;
 
 // Styles for the header box
 export const BoxHeaderStyle = {
@@ -82,3 +82,15 @@ export const RewardsContract = () => {
   const rewardsContract = new Contract(rewardsAddress, rewards["abi"]);
   return rewardsContract;
 };
+
+export interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  address: string;
+}
+
+export interface Compliment {
+  id: number;
+  message: string;
+}
