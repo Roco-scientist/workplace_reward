@@ -4,8 +4,9 @@ import {
   useContractFunction,
   useNotifications,
   useToken,
+  useTokenBalance,
 } from "@usedapp/core";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 import {
   Alert,
   Box,
@@ -13,6 +14,7 @@ import {
   CircularProgress,
   List,
   ListItem,
+  ListItemText,
   Snackbar,
   TextField,
 } from "@mui/material";
@@ -23,8 +25,10 @@ import {
   BoxHeaderStyle,
   BoxContainerStyle,
   ThanksContract,
+  RewardsContract,
   User,
 } from "./Common";
+import { formatUnits } from '@ethersproject/units'
 
 export const Admin = () => {
   // Setup notifications to display when transactions are a success
@@ -32,14 +36,38 @@ export const Admin = () => {
 
   // Get the swap contract to call its functions
   const swapContract = SwapContract();
-
   const thanksContract = ThanksContract();
+  const rewardsContract = RewardsContract();
+
   const thanksInfo = useToken(thanksContract.address);
   const thanksDecimals = thanksInfo
     ? thanksInfo.decimals
       ? thanksInfo.decimals
       : 18
     : 18;
+
+  const rewardsInfo = useToken(rewardsContract.address);
+  const rewardsDecimals = rewardsInfo
+    ? rewardsInfo.decimals
+      ? rewardsInfo.decimals
+      : 18
+    : 18;
+
+  const swapContractThanks = useTokenBalance(
+    thanksContract.address,
+    swapContract.address
+  );
+  const swapContractThanksBalance = swapContractThanks
+    ? swapContractThanks
+    : BigNumber.from(0);
+
+  const swapContractRewards = useTokenBalance(
+    rewardsContract.address,
+    swapContract.address
+  );
+  const swapContractRewardsBalance = swapContractRewards
+    ? swapContractRewards
+    : BigNumber.from(0);
 
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
   const { account } = useEthers();
@@ -56,24 +84,6 @@ export const Admin = () => {
       ? adminAddressResult.value[0]
       : constants.AddressZero
     : constants.AddressZero;
-
-  // Create the form data hooks to be updated by the form when the button is pressed
-  const [newAddress, setNewAddress] = useState("");
-
-  // Create the addAddress hook
-  const { send: addAddress, state: addAddressState } = useContractFunction(
-    swapContract,
-    "addAddress",
-    {
-      transactionName: "Add new address to the contract",
-    }
-  );
-
-  // Function to add a users address to the swap contract to allow sending and receiving
-  // of thanks and rewards tokens when the button is clicked
-  const AddUser = () => {
-    addAddress(newAddress);
-  };
 
   // Amount to be distributed
   const [distributeAmount, setDistributeAmount] = useState("");
@@ -107,10 +117,6 @@ export const Admin = () => {
   const isDistributing =
     distributeThanksState.status === "Mining" ||
     distributeThanksState.status === "PendingSignature";
-  // Status to set the submit button to disabled if the transaction is occuring but not finished
-  const isAddingAddress =
-    addAddressState.status === "Mining" ||
-    addAddressState.status === "PendingSignature";
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
@@ -165,17 +171,15 @@ export const Admin = () => {
           <Box sx={BoxHeaderStyle}>Admin Activities</Box>
           <List>
             <ListItem divider>
-              <TextField
-                label="New user address"
-                variant="outlined"
-                id="newAddress"
-                sx={{ m: 1, width: "97%" }}
-                value={newAddress}
-                onChange={(e) => setNewAddress(e.target.value)}
-              />
-              <Button onClick={() => AddUser()} disabled={isAddingAddress}>
-                {isAddingAddress ? <CircularProgress size={26} /> : "Submit"}
-              </Button>
+            <Box sx={{width:"30%"}}>Contract Balance:</Box>
+            <ListItemText
+              primary="Thank you tokens"
+              secondary={formatUnits(swapContractThanksBalance, thanksDecimals)}
+            />
+            <ListItemText
+              primary="Reward tokens"
+              secondary={formatUnits(swapContractRewardsBalance, rewardsDecimals)}
+            />
             </ListItem>
             <ListItem>
               <div style={{ height: 400 }}>
