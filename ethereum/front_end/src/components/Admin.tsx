@@ -9,6 +9,7 @@ import {
 import { BigNumber, constants } from "ethers";
 import {
   Alert,
+  Switch,
   Box,
   Button,
   CircularProgress,
@@ -16,7 +17,9 @@ import {
   ListItem,
   ListItemText,
   Snackbar,
+  Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { DataGrid, GridRowId, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
@@ -28,7 +31,7 @@ import {
   RewardsContract,
   User,
 } from "./Common";
-import { formatUnits } from '@ethersproject/units'
+import { formatUnits } from "@ethersproject/units";
 
 export const Admin = () => {
   // Setup notifications to display when transactions are a success
@@ -69,6 +72,11 @@ export const Admin = () => {
     ? swapContractRewards
     : BigNumber.from(0);
 
+  const [mintNew, setMintNew] = useState(false);
+  const mintNewChange = () => {
+    setMintNew(!mintNew);
+  };
+
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
   const { account } = useEthers();
   const accountAddress = account ? account : constants.AddressZero;
@@ -94,6 +102,12 @@ export const Admin = () => {
       transactionName: "Distribute thanks tokens",
     });
 
+  // Distribute tokens to addresses on the contract
+  const { send: distributeMintedThanks, state: distributeMintedThanksState } =
+    useContractFunction(swapContract, "mintThanksToUsers", {
+      transactionName: "Distribute minted thanks tokens",
+    });
+
   const emptyIds: GridRowId[] = [];
   const [selectedIds, setSelectedIds] = useState(emptyIds);
   const emptyUsers: User[] = [];
@@ -102,7 +116,9 @@ export const Admin = () => {
   // Fucntion to add a users address to the swap contract to allow sending and receiving
   // of thanks and rewards tokens
   const Distribute = () => {
-    const finalAmount = parseFloat(distributeAmount) * 10 ** thanksDecimals;
+    const finalAmount = BigInt(
+      parseFloat(distributeAmount) * 10 ** thanksDecimals
+    ).toString();
     const selectedIdsString: string[] = selectedIds.map((gridRowId) =>
       gridRowId.toString()
     );
@@ -110,13 +126,19 @@ export const Admin = () => {
       selectedIdsString.includes(user.id.toString())
     );
     const userAddresses: string[] = selectedUsers.map((user) => user.address);
-    distributeThanks(userAddresses, BigInt(finalAmount).toString());
+    if (mintNew) {
+      distributeMintedThanks(userAddresses, finalAmount);
+    } else {
+      distributeThanks(userAddresses, finalAmount);
+    }
   };
 
   // Status of the distribution.  Used to disable distribute button when in progress
   const isDistributing =
     distributeThanksState.status === "Mining" ||
-    distributeThanksState.status === "PendingSignature";
+    distributeThanksState.status === "PendingSignature" ||
+    distributeMintedThanksState.status === "Mining" ||
+    distributeMintedThanksState.status === "PendingSignature";
 
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
@@ -151,7 +173,8 @@ export const Admin = () => {
       notifications.filter(
         (notification) =>
           notification.type === "transactionSucceed" &&
-          notification.transactionName === "Distribute thanks tokens"
+          (notification.transactionName === "Distribute thanks tokens" ||
+            notification.transactionName === "Distribute minted thanks tokens")
       ).length > 0
     ) {
       setShowSendThanksSuccess(true);
@@ -171,15 +194,21 @@ export const Admin = () => {
           <Box sx={BoxHeaderStyle}>Admin Activities</Box>
           <List>
             <ListItem divider>
-            <Box sx={{width:"30%"}}>Contract Balance:</Box>
-            <ListItemText
-              primary="Thank you tokens"
-              secondary={formatUnits(swapContractThanksBalance, thanksDecimals)}
-            />
-            <ListItemText
-              primary="Reward tokens"
-              secondary={formatUnits(swapContractRewardsBalance, rewardsDecimals)}
-            />
+              <Box sx={{ width: "30%" }}>Contract Balance:</Box>
+              <ListItemText
+                primary="Thank you tokens"
+                secondary={formatUnits(
+                  swapContractThanksBalance,
+                  thanksDecimals
+                )}
+              />
+              <ListItemText
+                primary="Reward tokens"
+                secondary={formatUnits(
+                  swapContractRewardsBalance,
+                  rewardsDecimals
+                )}
+              />
             </ListItem>
             <ListItem>
               <div style={{ height: 400 }}>
@@ -203,6 +232,11 @@ export const Admin = () => {
               </div>
             </ListItem>
             <ListItem>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography>Use Balance</Typography>
+                <Switch checked={mintNew} onChange={mintNewChange} />
+                <Typography>Mint New</Typography>
+              </Stack>
               <TextField
                 label="Amount"
                 variant="outlined"
