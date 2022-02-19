@@ -183,6 +183,18 @@ export const Admin = () => {
     }
   }, [setSelectedIds, setDistributeAmount, notifications]);
 
+  const [mintColor, setMintColor] = useState("text.disabled");
+  const [balanceColor, setBalanceColor] = useState("primary.dark");
+  useEffect(() => {
+    if (mintNew) {
+      setMintColor("primary.dark");
+      setBalanceColor("text.disabled");
+    } else {
+      setMintColor("text.disabled");
+      setBalanceColor("primary.dark");
+    }
+  }, [setMintColor, setBalanceColor, mintNew]);
+
   // If the logged in user is the admin, show this form
   if (
     adminAddress === accountAddress &&
@@ -233,9 +245,9 @@ export const Admin = () => {
             </ListItem>
             <ListItem>
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography>Use Balance</Typography>
+                <Typography sx={{color: balanceColor}}>Use Balance</Typography>
                 <Switch checked={mintNew} onChange={mintNewChange} />
-                <Typography>Mint New</Typography>
+                <Typography sx={{color: mintColor}}>Mint New</Typography>
               </Stack>
               <TextField
                 label="Amount"
