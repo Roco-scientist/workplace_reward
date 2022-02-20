@@ -179,6 +179,7 @@ export const Distribute = () => {
           <TextField
             label="Amount"
             variant="outlined"
+            type="number"
             id="amount"
             sx={{ m: 1, width: "60%" }}
             value={distributeAmount}

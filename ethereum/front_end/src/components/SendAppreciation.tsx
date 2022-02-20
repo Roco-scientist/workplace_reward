@@ -260,6 +260,7 @@ export const SendAppreciation = () => {
             label="Amount"
             variant="outlined"
             id="appreciation-amount"
+            type="number"
             sx={{ m: 1, width: "15%" }}
             value={formData.appreciationAmount}
             onChange={(e) =>
