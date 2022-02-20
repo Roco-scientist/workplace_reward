@@ -1,5 +1,12 @@
 import { useContractFunction, useNotifications, useToken } from "@usedapp/core";
-import { Button, CircularProgress, Stack, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  Snackbar,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { SwapContract, ThanksContract, RewardsContract } from "./Common";
 
@@ -43,13 +50,27 @@ export const Mint = () => {
 
   // Function to get the ball rolling after user hits submit
   const mintContractTokens = () => {
-    const thanksAmount = BigInt(
-      parseFloat(mintData.thanksAmount) * 10 ** thanksDecimals
-    ).toString();
-    const rewardsAmount = BigInt(
-      parseFloat(mintData.rewardsAmount) * 10 ** rewardsDecimals
-    ).toString();
-    mintTokens(thanksAmount, rewardsAmount);
+    if (mintData.thanksAmount === "" || mintData.rewardsAmount === "") {
+      setshowMintError(true);
+    } else {
+      const thanksAmount = BigInt(
+        parseFloat(mintData.thanksAmount) * 10 ** thanksDecimals
+      ).toString();
+      const rewardsAmount = BigInt(
+        parseFloat(mintData.rewardsAmount) * 10 ** rewardsDecimals
+      ).toString();
+      mintTokens(thanksAmount, rewardsAmount);
+    }
+  };
+
+  const [showMintSuccess, setShowMintSuccess] = useState(false);
+  const handleCloseSnack = () => {
+    setShowMintSuccess(false);
+  };
+
+  const [showMintError, setshowMintError] = useState(false);
+  const handleCloseSnackError = () => {
+    setshowMintError(false);
   };
 
   useEffect(() => {
@@ -60,6 +81,7 @@ export const Mint = () => {
           notification.transactionName === "Mint tokens"
       ).length > 0
     ) {
+      setShowMintSuccess(true);
       setMintData({ thanksAmount: "", rewardsAmount: "" });
       mintTokensReset();
     }
@@ -78,6 +100,7 @@ export const Mint = () => {
           variant="outlined"
           id="thanks-amount"
           value={mintData.thanksAmount}
+          type="number"
           onChange={(e) =>
             setMintData({ ...mintData, thanksAmount: e.target.value })
           }
@@ -86,15 +109,38 @@ export const Mint = () => {
           label="Rewards tokens"
           variant="outlined"
           id="rewards-amount"
+          type="number"
           value={mintData.rewardsAmount}
           onChange={(e) =>
             setMintData({ ...mintData, rewardsAmount: e.target.value })
           }
         />
-        <Button onClick={() => mintContractTokens()} disabled={mintIsBusy} variant="contained">
+        <Button
+          onClick={() => mintContractTokens()}
+          disabled={mintIsBusy}
+          variant="contained"
+        >
           {mintIsBusy ? <CircularProgress size={26} /> : "Mint"}
         </Button>
       </Stack>
+      <Snackbar
+        open={showMintSuccess}
+        autoHideDuration={5000}
+        onClose={handleCloseSnack}
+      >
+        <Alert onClose={handleCloseSnack} severity="success">
+          Tokens minted!
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={showMintError}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackError}
+      >
+        <Alert onClose={handleCloseSnackError} severity="error">
+          Both token need a value! Use '0' if needed.
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
