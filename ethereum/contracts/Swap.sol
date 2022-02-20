@@ -66,8 +66,12 @@ contract Swap is Ownable {
 
     // Mint tokens to the contract to replenish or increase the rewards/thanks tokens
     function addMintedTokens(uint256 amountThanks, uint256 amountRewards) public onlyOwner {
-        RewardsContract.mint(address(this), amountRewards);
-        ThanksContract.mint(address(this), amountThanks);
+        if (amountRewards > 0) {
+            RewardsContract.mint(address(this), amountRewards);
+        }
+        if (amountThanks > 0 ) {
+            ThanksContract.mint(address(this), amountThanks);
+        }
     }
 
     // Allow the ability to withdraw tokens that were not supposed to be deposited
