@@ -1,4 +1,4 @@
-import { useContractFunction, useNotifications, useToken } from "@usedapp/core";
+import { useCall, useContractFunction, useNotifications, useToken } from "@usedapp/core";
 import {
   Alert,
   Button,
@@ -13,14 +13,46 @@ import { SwapContract, ThanksContract, RewardsContract } from "./Common";
 export const Mint = () => {
   const { notifications } = useNotifications();
 
-  const thanksInfo = useToken(ThanksContract().address);
+  // Get the contracts to perform function calls
+  const swapContract = SwapContract();
+  const thanksContract = ThanksContract();
+  const rewardsContract = RewardsContract();
+
+  // check if any of the tokens are paused
+  const thanksPausedResult = useCall({
+    contract: thanksContract,
+    method: "paused",
+    args: [],
+  });
+
+  const thanksPaused: boolean = thanksPausedResult
+    ? thanksPausedResult.value
+      ? thanksPausedResult.value[0]
+      : false
+    : false;
+
+  const rewardsPausedResult = useCall({
+    contract: rewardsContract,
+    method: "paused",
+    args: [],
+  });
+
+  const rewardsPaused: boolean = rewardsPausedResult
+    ? rewardsPausedResult.value
+      ? rewardsPausedResult.value[0]
+      : false
+    : false;
+
+  const inactive = rewardsPaused || thanksPaused;
+
+  const thanksInfo = useToken(thanksContract.address);
   const thanksDecimals = thanksInfo
     ? thanksInfo.decimals
       ? thanksInfo.decimals
       : 18
     : 18;
 
-  const rewardsInfo = useToken(RewardsContract().address);
+  const rewardsInfo = useToken(rewardsContract.address);
   const rewardsDecimals = rewardsInfo
     ? rewardsInfo.decimals
       ? rewardsInfo.decimals
@@ -38,7 +70,7 @@ export const Mint = () => {
     send: mintTokens,
     state: mintTokensState,
     resetState: mintTokensReset,
-  } = useContractFunction(SwapContract(), "addMintedTokens", {
+  } = useContractFunction(swapContract, "addMintedTokens", {
     transactionName: "Mint tokens",
   });
 
@@ -117,7 +149,7 @@ export const Mint = () => {
         />
         <Button
           onClick={() => mintContractTokens()}
-          disabled={mintIsBusy}
+          disabled={mintIsBusy || inactive}
           variant="contained"
         >
           {mintIsBusy ? <CircularProgress size={26} /> : "Mint"}

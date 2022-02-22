@@ -1,4 +1,5 @@
 import {
+  useCall,
   useEthers,
   useContractFunction,
   useNotifications,
@@ -19,15 +20,48 @@ import {
 } from "@mui/material";
 import { DataGrid, GridRowId, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { SwapContract, ThanksContract, User } from "./Common";
+import {
+  RewardsContract,
+  SwapContract,
+  ThanksContract,
+  User,
+} from "./Common";
 
 export const Distribute = () => {
   // Setup notifications to display when transactions are a success
   const { notifications } = useNotifications();
 
-  // Get the swap contract to call its functions
+  // Get the contracts to call their functions
   const swapContract = SwapContract();
   const thanksContract = ThanksContract();
+  const rewardsContract = RewardsContract();
+
+  // check if any of the tokens are paused
+  const thanksPausedResult = useCall({
+    contract: thanksContract,
+    method: "paused",
+    args: [],
+  });
+
+  const thanksPaused: boolean = thanksPausedResult
+    ? thanksPausedResult.value
+      ? thanksPausedResult.value[0]
+      : false
+    : false;
+
+  const rewardsPausedResult = useCall({
+    contract: rewardsContract,
+    method: "paused",
+    args: [],
+  });
+
+  const rewardsPaused: boolean = rewardsPausedResult
+    ? rewardsPausedResult.value
+      ? rewardsPausedResult.value[0]
+      : false
+    : false;
+
+  const inactive = rewardsPaused || thanksPaused;
 
   const thanksInfo = useToken(thanksContract.address);
   const thanksDecimals = thanksInfo
@@ -187,7 +221,7 @@ export const Distribute = () => {
           />
           <Button
             onClick={() => Distribute()}
-            disabled={isDistributing}
+            disabled={isDistributing || inactive}
             variant="contained"
             sx={{ m: 1 }}
           >
