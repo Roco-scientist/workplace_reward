@@ -9,4 +9,8 @@ Eventually will include the ability to trade in tokens for company schwag or goo
 
 ## Current front-end screenshot
 
+### User account
 ![Thanks](./thanks.png)
+
+### Admin account
+![Admin](./Admin_page.png)

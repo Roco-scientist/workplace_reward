@@ -1,4 +1,5 @@
 import {
+  useCall,
   useContractFunction,
   useEthers,
   useNotifications,
@@ -21,6 +22,7 @@ import { useEffect, useState } from "react";
 import {
   BoxContainerStyle,
   BoxHeaderStyle,
+  RewardsContract,
   SwapContract,
   ThanksContract,
   User,
@@ -28,11 +30,41 @@ import {
 } from "./Common";
 
 export const SendAppreciation = () => {
+  // Get the contracts to perform function calls
+  const swapContract = SwapContract();
+  const thanksContract = ThanksContract();
+  const rewardsContract = RewardsContract();
+
+  // check if any of the tokens are paused
+  const thanksPausedResult = useCall({
+    contract: thanksContract,
+    method: "paused",
+    args: [],
+  });
+
+  const thanksPaused: boolean = thanksPausedResult
+    ? thanksPausedResult.value
+      ? thanksPausedResult.value[0]
+      : false
+    : false;
+
+  const rewardsPausedResult = useCall({
+    contract: rewardsContract,
+    method: "paused",
+    args: [],
+  });
+
+  const rewardsPaused: boolean = rewardsPausedResult
+    ? rewardsPausedResult.value
+      ? rewardsPausedResult.value[0]
+      : false
+    : false;
+
+  const inactive = rewardsPaused || thanksPaused;
+
   // retrieve the account which is logged in
   const { account, deactivate } = useEthers();
   const [previousAccount, setPreviousAccount] = useState(constants.AddressZero);
-
-  const thanksContract = ThanksContract();
 
   const defaultUsers: User[] = [];
   const [users, setUsers] = useState(defaultUsers);
@@ -57,9 +89,6 @@ export const SendAppreciation = () => {
 
   // Setup notifications to display when transactions are a success
   const { notifications } = useNotifications();
-
-  // Get the swap contract to perform contract functions later
-  const swapContract = SwapContract();
 
   const _alreadyAllowedSend = useTokenAllowance(
     thanksContract.address,
@@ -260,6 +289,7 @@ export const SendAppreciation = () => {
             label="Amount"
             variant="outlined"
             id="appreciation-amount"
+            type="number"
             sx={{ m: 1, width: "15%" }}
             value={formData.appreciationAmount}
             onChange={(e) =>
@@ -286,7 +316,10 @@ export const SendAppreciation = () => {
               );
             })}
           </Select>
-          <Button onClick={() => SendThanks()} disabled={sendIsBusy}>
+          <Button
+            onClick={() => SendThanks()}
+            disabled={sendIsBusy || inactive}
+          >
             {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
           </Button>
         </form>

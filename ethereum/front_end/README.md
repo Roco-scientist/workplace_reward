@@ -1,7 +1,9 @@
 # Worker Rewards Front End
 
 Make sure to deploy the ethereum smart contracts before running.
-This adds the necessary contract info and deployment addresses to the front end for contract interaction.
+This adds the necessary contract info and deployment addresses to the front end for contract interaction.  
+  
+The back-end also needs to be started for this to work.  It is located in the ../api folder
 
 - This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).  
   - Error fix added to tsconfig.json in compiler options
@@ -10,28 +12,14 @@ This adds the necessary contract info and deployment addresses to the front end 
   - [Error fix found here](https://github.com/mswjs/msw/issues/1030#issuecomment-1009253387)
 - Style was with [Material UI](https://mui.com/getting-started/installation/)
 
-## Available Scripts
+## Run
 
-In the project directory, you can run:
-
-### `yarn start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`npm start`
 
 ## Current front-end screenshot
 
+### User account
 ![Thanks](../../thanks.png)
+
+### Admin account
+![Admin](../../Admin_page.png)
