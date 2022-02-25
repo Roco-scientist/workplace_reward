@@ -11,9 +11,13 @@
 - Metamask wallet plugin to interact with the front end
   - [For Chrome](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn)
   - [For firefox](https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/)
+- sqlite3 for the backend databse.  This is for testing purposes and should be switched to mysql or something similar
 - To enable further use, the deployer needs to connect to the front end in order to:
-  - Add the address to the contract
-  - Distribute thanks coins to the added address
+  - Distribute thanks coins to addresses
+- For employee of the month NFT
+  - Pinata account with API keys
+- Infura account with keys
+- Etherscan account with keys
 
 ## Compile Solidity Contracts
 
@@ -21,10 +25,39 @@
 
 ## Deploy
 
-Create a .env file holding the private account address  
-  
-`brownie run ./scripts/deployRewards.py --network mainnet`
+#### Setup keys needed
+Create a .env file within the current folder holding the the following:
+```
+export PRIVATE_KEY=<wallet_private_key>
+export WEB3_INFURA_PROJECT_ID=<infura_id>
+export ETHERSCAN_TOKEN=<etherscan_account_token>
+export PINATA_API_KEY=<pinata_api_key>
+export PINATA_SECRET_API_KEY=<pinata_secret_key>
+export PINATA_JWT=<pinata_jwt>
+```
 
+#### Deploy on Ethereum mainnet
+To deploy on other blockchains or testnets, replace `mainnet` with a value found from `brownie networks list`
+```
+brownie run ./scripts/deployRewards.py --network mainnet  
+brownie run ./scripts/deployNFTs.py --network mainnet  
+```
+
+
+#### Run the website
+Initialize the back end database.  This is currently using sqlite for testing.
+- cd into ./api/src/db/
+- `sqlite3 worker_rewards`
+- `.quit`
+- `sqlite3 worker_rewards.db < initialize_db.sql`
+- Insert users and compliments into worker_rewards.db
+  - For test purposes `sqlite3 worker_rewards.db < insert_tests.sql`
+
+In two separate terminals or running instances:  
+- Run the website from within ./front_end/
+  - `npm start`
+- Run the backend from within ./api/
+  - `npm start`
 
 ## Unit Tests
 
