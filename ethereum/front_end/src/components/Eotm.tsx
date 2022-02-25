@@ -12,10 +12,14 @@ import {
   MenuItem,
   Snackbar,
   Select,
+  Stack,
+  TextField,
 } from "@mui/material";
-import { MonthPicker } from "@mui/lab";
+import { DatePicker } from "@mui/lab";
 import { useEffect, useState } from "react";
 import { EotmContract, User } from "./Common";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
 
 export const Eotm = () => {
   // Setup notifications to display when transactions are a success
@@ -23,6 +27,13 @@ export const Eotm = () => {
 
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
   const { account } = useEthers();
+
+  const today = new Date();
+  const month = new Date(today.getFullYear(), today.getMonth());
+  const [eotmData, setEotmData] = useState({
+    month: month,
+    address: "",
+  });
 
   // Get the EOTM contract
   const eotmContract = EotmContract();
@@ -64,7 +75,7 @@ export const Eotm = () => {
       ).length > 0
     ) {
       setShowEotmSendSuccess(true);
-      setEotmAddress("");
+      setEotmData({ month: new Date(), address: "" });
     }
   }, [setShowEotmSendSuccess, notifications]);
 
@@ -72,29 +83,54 @@ export const Eotm = () => {
     setShowEotmSendSuccess(false);
   };
 
-  const [eotmAddress, setEotmAddress] = useState("");
-  const [eotmMonth, setEotmMonth] = useState(new Date());
-
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
   // Function activated after then send button is clicked
   const SendEotm = () => {
+    const eotmDate =
+      months[eotmData.month.getMonth()] +
+      " " +
+      eotmData.month.getFullYear().toString();
+    // TODO create a new NFT JSON for the input date and move to pinata for a uri
     const test_uri = "ipfs://QmTELAJwk3PoCyvFtGHBnMuFXZJykKbMDqVqBcsoQimhpq";
-    mintEotm(eotmAddress, test_uri);
+    mintEotm(eotmData.address, test_uri);
   };
 
   return (
     <div>
-      <form id="send-thanks-form">
-        <MonthPicker
-          date={new Date()}
-          minDate={new Date(2017, 1)}
-          value={eotmMonth}
-          onChange={(e) => setEotmMonth(e.target.value)}
-        />
-        <InputLabel id="appreciation-address">Co-worker</InputLabel>
+      <Stack spacing={2}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            views={["year", "month"]}
+            label="Year and Month"
+            minDate={new Date(2017, 1)}
+            maxDate={new Date(today.getFullYear() + 2, 1)}
+            value={eotmData.month}
+            onChange={(newDate: Date | null) =>
+              setEotmData({ ...eotmData, month: newDate ? newDate : month })
+            }
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </LocalizationProvider>
+        <InputLabel id="eotm-address">Employee of the month</InputLabel>
         <Select
           id="eotm-address"
-          value={eotmAddress}
-          onChange={(e) => setEotmAddress(e.target.value)}
+          value={eotmData.address}
+          onChange={(e) =>
+            setEotmData({ ...eotmData, address: e.target.value })
+          }
         >
           <MenuItem value="" key="NoUser">
             <em>None</em>
@@ -115,7 +151,7 @@ export const Eotm = () => {
         >
           {sendIsBusy ? <CircularProgress size={26} /> : "Send"}
         </Button>
-      </form>
+      </Stack>
       <Snackbar
         open={showEotmSendSuccess}
         autoHideDuration={5000}

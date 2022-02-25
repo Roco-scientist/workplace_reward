@@ -17,6 +17,7 @@ import { Mint } from "./Mint";
 import { ContractBalance } from "./ContractBalance";
 import { Distribute } from "./Distribute";
 import { Pause } from "./Pause"
+import { Eotm } from "./Eotm";
 
 export const Admin = () => {
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
@@ -55,8 +56,11 @@ export const Admin = () => {
             <ListItem divider>
               <Mint />
             </ListItem>
-            <ListItem>
+            <ListItem divider>
               <Pause />
+            </ListItem>
+            <ListItem>
+              <Eotm />
             </ListItem>
           </List>
         </Box>
