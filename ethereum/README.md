@@ -122,6 +122,7 @@ Costs:
   - Send: 0.000129334501207122 at 1.5 gwei, 
 - Employee of the month NFT
   - Deploy: 0.001991791305729936 at 1.3 gwei gas
+  - Mint: 0.000246784513490886 at 1.5 gwei gas
 
 ## Run front end
 
