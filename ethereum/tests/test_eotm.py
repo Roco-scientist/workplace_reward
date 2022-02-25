@@ -10,6 +10,18 @@ def test_nft():
     destination_account = accounts[1]
     eotm = deployNFTs.deploy_EOTM(account)
     eotm.safeMint(destination_account, "ipfs://QmTELAJwk3PoCyvFtGHBnMuFXZJykKbMDqVqBcsoQimhpq", {"from": account})
+    # Check transfer
+    assert eotm.ownerOf(0) == destination_account
+    # Check authority
+    with pytest.raises(exceptions.VirtualMachineError):
+        eotm.safeMint(account, "ipfs://QmTELAJwk3PoCyvFtGHBnMuFXZJykKbMDqVqBcsoQimhpq", {"from": destination_account})
+    # Make sure the uri is the same
     assert eotm.tokenURI(0) ==  "ipfs://QmTELAJwk3PoCyvFtGHBnMuFXZJykKbMDqVqBcsoQimhpq"
-    assert False
-
+    # Check transfer
+    with pytest.raises(exceptions.VirtualMachineError):
+        eotm.safeTransferFrom(destination_account, account, 0, {"from": account})
+    eotm.approve(account, 0, {"from": destination_account})
+    eotm.safeTransferFrom(destination_account, account, 0, {"from": account})
+    assert eotm.ownerOf(0) == account
+    eotm.safeTransferFrom(account, destination_account, 0, {"from": account})
+    assert eotm.ownerOf(0) == destination_account
