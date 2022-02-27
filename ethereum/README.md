@@ -110,7 +110,7 @@ ropsten test network:
 - [Swap](https://ropsten.etherscan.io/address/0xc1E8Aa5eDE71816FBbf68c19b149376D94B402F9)
 - [Thank you token](https://ropsten.etherscan.io/address/0xd796e77A5d8CD6b5b958A670f3Af6Bb806A5184C)
 - [Reward token](https://ropsten.etherscan.io/address/0xAfEf77aEa02Bb31FDB31dcd16ebBc39109F66FC7)
-- [Employee of the month NFT](https://ropsten.etherscan.io/0xb4157EC4109291DB82048cF81EB8b099E59Fc6B2)
+- [Employee of the month NFT](https://ropsten.etherscan.io/address/0x7e36dDF8bA3C44e71225F8270D36e6B636a77DED)
   
 Costs:
 - Deployment
@@ -121,7 +121,7 @@ Costs:
   - Approve: 0.0000395055 at 1.5 gwei
   - Send: 0.000129334501207122 at 1.5 gwei, 
 - Employee of the month NFT
-  - Deploy: 0.001991791305729936 at 1.3 gwei gas
+  - Deploy: 0.00242994868111495 at 1.3 gwei gas
   - Mint: 0.000246784513490886 at 1.5 gwei gas
 
 ## Run front end
