@@ -25,3 +25,9 @@ def test_nft():
     assert eotm.ownerOf(0) == account
     eotm.safeTransferFrom(account, destination_account, 0, {"from": account})
     assert eotm.ownerOf(0) == destination_account
+    quantity_owned = eotm.balanceOf(destination_account)
+    token_ids = []
+    for x in range(quantity_owned):
+        token_ids.append(eotm.tokenOfOwnerByIndex(destination_account, x))
+    print(f"Token ids: {token_ids}")
+    assert token_ids == [0]

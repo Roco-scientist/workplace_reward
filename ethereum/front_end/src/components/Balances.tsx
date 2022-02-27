@@ -1,9 +1,16 @@
-import { useCall, useEthers, useToken, useTokenBalance } from "@usedapp/core";
+import {
+  useCall,
+  useCalls,
+  useEthers,
+  useToken,
+  useTokenBalance,
+} from "@usedapp/core";
 import { BigNumber, constants } from "ethers";
-import { Box, List, ListItem, ListItemText } from "@mui/material";
+import { Box, List, ListItem, ListItemText, Stack } from "@mui/material";
 import {
   BoxContainerStyle,
   BoxHeaderStyle,
+  EotmContract,
   RewardsContract,
   ThanksContract,
 } from "./Common";
@@ -74,6 +81,9 @@ export const Balances = () => {
       : 18
     : 18;
 
+  const cids = useEotmAccrued();
+  // console.log("Uris: " + uris);
+
   return (
     <div>
       <Box sx={BoxContainerStyle}>
@@ -89,7 +99,7 @@ export const Balances = () => {
               secondary={formatUnits(thanksBalance, thanksDecimals)}
             />
           </ListItem>
-          <ListItem>
+          <ListItem divider>
             <ListItemText
               primary={
                 rewardsPaused
@@ -99,8 +109,97 @@ export const Balances = () => {
               secondary={formatUnits(rewardsBalance, rewardsDecimals)}
             />
           </ListItem>
+          <ListItem>
+            <Stack spacing={2}>
+              {cids.map((cid, indx) => {
+                return (
+                  <ListItemText
+                    key={cid + indx}
+                    primary="Employee of the month"
+                    secondary={<a href={"ipfs://" + cid} target="_blank" rel="noreferrer">NFT</a>}
+                  />
+                );
+              })}
+            </Stack>
+          </ListItem>
         </List>
       </Box>
     </div>
   );
+};
+
+const useEotmAccrued = () => {
+  // get account and chain id of the connected wallet
+  const { account } = useEthers();
+  const accountAddress = account ? account : constants.AddressZero;
+
+  const eotmContract = EotmContract();
+
+  const ownerQtyResult = useCall({
+    contract: eotmContract,
+    method: "balanceOf",
+    args: [accountAddress],
+  });
+
+  const ownerQty = ownerQtyResult
+    ? ownerQtyResult.value
+      ? ownerQtyResult.value?.[0].toNumber()
+      : 0
+    : 0;
+
+  const indexes = Array.from(Array(ownerQty).keys());
+  const ownerCalls =
+    indexes.map((idx) => ({
+      contract: eotmContract,
+      method: "tokenOfOwnerByIndex",
+      args: [accountAddress, idx.toString()],
+    })) ?? [];
+
+  const ownerTokenIdsResults = useCalls(ownerCalls);
+
+  const ownedEotms: number[] = [];
+
+  ownerTokenIdsResults.forEach((result, idx) => {
+    if (result && result.error) {
+      console.error(
+        `Error encountered calling 'ownerOf' on ${ownerCalls[idx]?.contract.address}: ${result.error.message}`
+      );
+    }
+    const tokenId = result?.value?.[0];
+    if (tokenId) {
+      ownedEotms.push(tokenId);
+    }
+  });
+
+  const eotmCalls =
+    ownedEotms.map((tokenId) => ({
+      contract: eotmContract,
+      method: "tokenURI",
+      args: [tokenId.toString()],
+    })) ?? [];
+
+  const eotmUriResults = useCalls(eotmCalls);
+
+  const cids: string[] = [];
+  eotmUriResults.forEach((result, idx) => {
+    if (result && result.error) {
+      console.error(
+        `Error encountered calling 'ownerOf' on ${eotmCalls[idx]?.contract.address}: ${result.error.message}`
+      );
+    }
+    const uri = result?.value?.[0];
+    if (uri) {
+      const cid = uri.replace("ipfs://", "");
+      cids.push(cid);
+    }
+  });
+
+  // console.log(cids);
+  // cids.forEach((cid) => {
+  //   fetch("http://localhost:3080/api/getnft?cid=" + cid)
+  //     .then((response) => response.json())
+  //     .then((response) => console.log(response));
+  // });
+
+  return cids;
 };

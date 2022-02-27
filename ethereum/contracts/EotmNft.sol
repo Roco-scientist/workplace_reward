@@ -5,9 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 
-contract EmployeeOfTheMonth is ERC721, ERC721URIStorage, Ownable {
+contract EmployeeOfTheMonth is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -19,6 +20,13 @@ contract EmployeeOfTheMonth is ERC721, ERC721URIStorage, Ownable {
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+    }
+
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._beforeTokenTransfer(from, to, tokenId);
     }
 
     // The following functions are overrides required by Solidity.
@@ -34,5 +42,14 @@ contract EmployeeOfTheMonth is ERC721, ERC721URIStorage, Ownable {
         returns (string memory)
     {
         return super.tokenURI(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

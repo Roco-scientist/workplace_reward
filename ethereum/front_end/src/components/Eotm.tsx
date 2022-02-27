@@ -158,7 +158,7 @@ export const Eotm = () => {
         onClose={handleCloseSnack}
       >
         <Alert onClose={handleCloseSnack} severity="success">
-          Thanks sent!
+          Employee of the month NFT sent!
         </Alert>
       </Snackbar>
     </div>
