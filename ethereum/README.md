@@ -26,11 +26,15 @@
 ## Deploy
 
 #### Setup keys needed
-Create a .env file within the current folder holding the the following:
+Create a .env file within the current folder holding the following:
 ```
 export PRIVATE_KEY=<wallet_private_key>
 export WEB3_INFURA_PROJECT_ID=<infura_id>
 export ETHERSCAN_TOKEN=<etherscan_account_token>
+```
+  
+Also create a `.env` file within the API folder holding the following:
+```
 export PINATA_API_KEY=<pinata_api_key>
 export PINATA_SECRET_API_KEY=<pinata_secret_key>
 export PINATA_JWT=<pinata_jwt>

@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { EotmContract, User } from "./Common";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import axios from "axios";
 
 export const Eotm = () => {
   // Setup notifications to display when transactions are a success
@@ -57,14 +58,15 @@ export const Eotm = () => {
       .then((response) => setUsers(response));
   }, [setUsers, account]);
 
+  const [pinningNft, setPinningNft] = useState(false);
   // Test to see if the app is busy either getting approval or sending the coin.
   // This is used to set the submit button to disabled
   const sendIsBusy =
     mintEotmState.status === "Mining" ||
-    mintEotmState.status === "PendingSignature";
+    mintEotmState.status === "PendingSignature" ||
+    pinningNft;
 
   const [showEotmSendSuccess, setShowEotmSendSuccess] = useState(false);
-
   // Pull notification on the process and set notification display
   useEffect(() => {
     if (
@@ -76,6 +78,7 @@ export const Eotm = () => {
     ) {
       setShowEotmSendSuccess(true);
       setEotmData({ month: new Date(), address: "" });
+      setPinningNft(false);
     }
   }, [setShowEotmSendSuccess, notifications]);
 
@@ -97,15 +100,29 @@ export const Eotm = () => {
     "November",
     "December",
   ];
+
   // Function activated after then send button is clicked
   const SendEotm = () => {
+    setPinningNft(true);
     const eotmDate =
+      "Employee of the month for " +
       months[eotmData.month.getMonth()] +
-      " " +
+      " of " +
       eotmData.month.getFullYear().toString();
-    // TODO create a new NFT JSON for the input date and move to pinata for a uri
-    const test_uri = "ipfs://QmTELAJwk3PoCyvFtGHBnMuFXZJykKbMDqVqBcsoQimhpq";
-    mintEotm(eotmData.address, test_uri);
+    axios
+      .post("http://localhost:3080/api/ipfsjson", {
+        description: eotmDate,
+        image: "ipfs://QmcpAZkTmBeJ5RQg4XvgD2qPUqVXQgw4389FSxtMjpc9wp",
+        name: "Employee of the month",
+      })
+      .then((response) => {
+        const jsonCip = response.data?.IpfsHash;
+        if (jsonCip) {
+          const nftIpfs = "ipfs://" + jsonCip;
+          mintEotm(eotmData.address, nftIpfs);
+        }
+      })
+      .catch((error) => console.log(error));
   };
 
   return (
