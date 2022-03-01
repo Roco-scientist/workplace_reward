@@ -11,9 +11,13 @@
 - Metamask wallet plugin to interact with the front end
   - [For Chrome](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn)
   - [For firefox](https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/)
+- sqlite3 for the backend databse.  This is for testing purposes and should be switched to mysql or something similar
 - To enable further use, the deployer needs to connect to the front end in order to:
-  - Add the address to the contract
-  - Distribute thanks coins to the added address
+  - Distribute thanks coins to addresses
+- For employee of the month NFT
+  - Pinata account with API keys
+- Infura account with keys
+- Etherscan account with keys
 
 ## Compile Solidity Contracts
 
@@ -21,10 +25,43 @@
 
 ## Deploy
 
-Create a .env file holding the private account address  
+#### Setup keys needed
+Create a .env file within the current folder holding the following:
+```
+export PRIVATE_KEY=<wallet_private_key>
+export WEB3_INFURA_PROJECT_ID=<infura_id>
+export ETHERSCAN_TOKEN=<etherscan_account_token>
+```
   
-`brownie run ./scripts/deployRewards.py --network mainnet`
+Also create a `.env` file within the API folder holding the following:
+```
+export PINATA_API_KEY=<pinata_api_key>
+export PINATA_SECRET_API_KEY=<pinata_secret_key>
+export PINATA_JWT=<pinata_jwt>
+```
 
+#### Deploy on Ethereum mainnet
+To deploy on other blockchains or testnets, replace `mainnet` with a value found from `brownie networks list`
+```
+brownie run ./scripts/deployRewards.py --network mainnet  
+brownie run ./scripts/deployNFTs.py --network mainnet  
+```
+
+
+#### Run the website
+Initialize the back end database.  This is currently using sqlite for testing.
+- cd into ./api/src/db/
+- `sqlite3 worker_rewards`
+- `.quit`
+- `sqlite3 worker_rewards.db < initialize_db.sql`
+- Insert users and compliments into worker_rewards.db
+  - For test purposes `sqlite3 worker_rewards.db < insert_tests.sql`
+
+In two separate terminals or running instances:  
+- Run the website from within ./front_end/
+  - `npm start`
+- Run the backend from within ./api/
+  - `npm start`
 
 ## Unit Tests
 
@@ -77,6 +114,7 @@ ropsten test network:
 - [Swap](https://ropsten.etherscan.io/address/0xc1E8Aa5eDE71816FBbf68c19b149376D94B402F9)
 - [Thank you token](https://ropsten.etherscan.io/address/0xd796e77A5d8CD6b5b958A670f3Af6Bb806A5184C)
 - [Reward token](https://ropsten.etherscan.io/address/0xAfEf77aEa02Bb31FDB31dcd16ebBc39109F66FC7)
+- [Employee of the month NFT](https://ropsten.etherscan.io/address/0x7e36dDF8bA3C44e71225F8270D36e6B636a77DED)
   
 Costs:
 - Deployment
@@ -86,6 +124,9 @@ Costs:
 - Send Thanks
   - Approve: 0.0000395055 at 1.5 gwei
   - Send: 0.000129334501207122 at 1.5 gwei, 
+- Employee of the month NFT
+  - Deploy: 0.00242994868111495 at 1.3 gwei gas
+  - Mint: 0.000246784513490886 at 1.5 gwei gas
 
 ## Run front end
 

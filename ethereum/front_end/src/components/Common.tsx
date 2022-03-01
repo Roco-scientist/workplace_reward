@@ -5,6 +5,7 @@ import { constants } from "ethers";
 import swap from "../Swap.json";
 import thanks from "../ThankYouToken.json";
 import rewards from "../RewardToken.json";
+import eotm from "../EmployeeOfTheMonth.json"
 
 // set deploy number from the brownie deoploy.  Change this later
 export const deployNumber = 0;
@@ -81,6 +82,24 @@ export const RewardsContract = () => {
   // create the contract to connect and call solidity functions on the blockchain
   const rewardsContract = new Contract(rewardsAddress, rewards["abi"]);
   return rewardsContract;
+};
+
+export const EotmContract = () => {
+  // get account and chain id of the connected wallet
+  const { chainId } = useEthers();
+  const stringChainId = String(chainId);
+
+  // setup addresses to be used later.
+  const eotmAddress =
+    stringChainId in networkMapping
+      ? chainId
+        ? networkMapping[stringChainId]["EmployeeOfTheMonth"][deployNumber]
+        : constants.AddressZero
+      : constants.AddressZero;
+
+  // create the contract to connect and call solidity functions on the blockchain
+  const eotmContract = new Contract(eotmAddress, eotm["abi"]);
+  return eotmContract;
 };
 
 export interface User {

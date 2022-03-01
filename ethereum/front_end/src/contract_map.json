@@ -1,7 +1,13 @@
 {
   "3": {
+    "EmployeeOfTheMonth": [
+      "0x7e36dDF8bA3C44e71225F8270D36e6B636a77DED",
+      "0xb4157EC4109291DB82048cF81EB8b099E59Fc6B2"
+    ],
     "RewardToken": [
-      "0xAfEf77aEa02Bb31FDB31dcd16ebBc39109F66FC7",
+      "0xAfEf77aEa02Bb31FDB31dcd16ebBc39109F66FC7"
+    ],
+    "RewardsToken": [
       "0x808cF232F973CF0bBB480C27d476E6C5581bbC62",
       "0x3D5597e5325eCeB2871A6132E680E0CCCc61204f"
     ],
