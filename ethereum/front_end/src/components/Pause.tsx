@@ -1,12 +1,9 @@
-import { useCall, useContractFunction, useNotifications } from "@usedapp/core";
+import { useCall, useContractFunction } from "@usedapp/core";
 import {
-  Alert,
   Button,
   CircularProgress,
-  Snackbar,
   Stack,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { ThanksContract, RewardsContract } from "./Common";
 
 export const Pause = () => {
@@ -40,14 +37,12 @@ export const Pause = () => {
   const {
     send: pauseThanksTokens,
     state: pauseThanksTokensState,
-    resetState: pauseThanksTokensReset,
   } = useContractFunction(thanksContract, "pause", {
     transactionName: "Pause thanks token",
   });
   const {
     send: unpauseThanksTokens,
     state: unpauseThanksTokensState,
-    resetState: unpauseThanksTokensReset,
   } = useContractFunction(thanksContract, "unpause", {
     transactionName: "Unpause thanks token",
   });
@@ -55,14 +50,12 @@ export const Pause = () => {
   const {
     send: pauseRewardsTokens,
     state: pauseRewardsTokensState,
-    resetState: pauseRewardsTokensReset,
   } = useContractFunction(rewardsContract, "pause", {
     transactionName: "Pause rewards token",
   });
   const {
     send: unpauseRewardsTokens,
     state: unpauseRewardsTokensState,
-    resetState: unpauseRewardsTokensReset,
   } = useContractFunction(rewardsContract, "unpause", {
     transactionName: "Unpause rewards token",
   });
