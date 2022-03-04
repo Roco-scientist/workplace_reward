@@ -4,6 +4,7 @@ import Container from "@mui/material/Container";
 import { Balances } from "./components/Balances";
 import { SendAppreciation } from "./components/SendAppreciation";
 import { Admin } from "./components/Admin";
+import { AdminDb } from "./components/AdminDb";
 
 const config = {
   networks: [Ropsten],
@@ -21,6 +22,7 @@ function App() {
         <Balances />
         <SendAppreciation />
         <Admin />
+        <AdminDb />
       </Container>
     </DAppProvider>
   );
