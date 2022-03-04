@@ -37,48 +37,67 @@ const pinata = pinataSDK(
 );
 
 passport.use(
-  new LocalStrategy(function verify(accountAddress, password, cb) {
-    db.get(
-      "SELECT rowid AS id, * FROM users WHERE address = ?",
-      [accountAddress],
-      function (err, row) {
-        if (err) {
-          return cb(err);
-        }
-        if (!row) {
-          return cb(null, false, {
-            message: "Incorrect username or password.",
-          });
-        }
-
-        crypto.pbkdf2(
-          password,
-          row.salt,
-          310000,
-          32,
-          "sha256",
-          function (err, hashedPassword) {
-            if (err) {
-              return cb(err);
-            }
-            if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
-              return cb(null, false, {
-                message: "Incorrect username or password.",
-              });
-            }
-            return cb(null, row);
+  new LocalStrategy(
+    {
+      usernameField: "accountAddress",
+    },
+    function verify(accountAddress, password, cb) {
+      db.get(
+        "SELECT rowid AS id, * FROM users WHERE address = ?",
+        [accountAddress],
+        function (err, row) {
+          if (err) {
+            return cb(err);
           }
-        );
-      }
-    );
-  })
+          if (!row) {
+            return cb(null, false, {
+              message: "Incorrect username or password.",
+            });
+          }
+
+          crypto.pbkdf2(
+            password,
+            row.salt,
+            310000,
+            32,
+            "sha256",
+            function (err, hashedPassword) {
+              if (err) {
+                return cb(err);
+              }
+              if (
+                !crypto.timingSafeEqual(row.hashed_password, hashedPassword)
+              ) {
+                return cb(null, false, {
+                  message: "Incorrect username or password.",
+                });
+              }
+              return cb(null, row);
+            }
+          );
+        }
+      );
+    }
+  )
 );
+
+passport.serializeUser(function (user, cb) {
+  process.nextTick(function () {
+    cb(null, { id: user.id, username: user.username });
+  });
+});
+
+passport.deserializeUser(function (user, cb) {
+  process.nextTick(function () {
+    return cb(null, user);
+  });
+});
 
 app.use(bodyParser.json());
 app.use(cors({ origin: "https://localhost:3000" }));
 
 // Get request for all other users from the same company
-app.get("/api/users/other", async (req, res) => {
+app.get("/api/users/other", (req, res) => {
   // The address of the incoming REST get in order to narrow down the response to only the data
   // that is connected to the company which the address is coming from
   const accountAddress = req.query.accountAddress.toString();
@@ -103,7 +122,7 @@ app.get("/api/users/other", async (req, res) => {
 });
 
 // Get request for all users from the same company
-app.get("/api/users/all", async (req, res) => {
+app.get("/api/users/all", (req, res) => {
   // The address of the incoming REST get in order to narrow down the response to only the data
   // that is connected to the company which the address is coming from
   const accountAddress = req.query.accountAddress.toString();
@@ -126,7 +145,7 @@ app.get("/api/users/all", async (req, res) => {
 });
 
 // REST response for get the compliments that are associated with the users company
-app.get("/api/compliments", async (req, res) => {
+app.get("/api/compliments", (req, res) => {
   // The address of the incoming REST get in order to narrow down the response to only the data
   // that is connected to the company which the address is coming from
   const accountAddress = req.query.accountAddress.toString();
@@ -148,7 +167,11 @@ app.get("/api/compliments", async (req, res) => {
   }
 });
 
-app.post("/api/ipfsjson", async (req, res) => {
+app.post("/api/login", passport.authenticate("local"), (req, res) => {
+  res.json([]);
+});
+
+app.post("/api/ipfsjson", (req, res) => {
   const jsonBody = req.body;
 
   const jsonName = jsonBody.description.replaceAll(" ", "_") + ".json";
