@@ -317,7 +317,7 @@ export const SendAppreciation = () => {
             })}
           </Select>
           <Button
-            onClick={() => SendThanks()}
+            onClick={SendThanks}
             disabled={sendIsBusy || inactive}
           >
             {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
