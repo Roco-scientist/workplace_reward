@@ -39,19 +39,19 @@ const pinata = pinataSDK(
 passport.use(
   new LocalStrategy(
     {
-      usernameField: "accountAddress",
+      usernameField: "address",
     },
-    function verify(accountAddress, password, cb) {
+    function verify(address: string, password: string, cb) {
       db.get(
         "SELECT rowid AS id, * FROM users WHERE address = ?",
-        [accountAddress],
-        function (err, row) {
+        [address],
+        (err, row) => {
           if (err) {
             return cb(err);
           }
           if (!row) {
             return cb(null, false, {
-              message: "Incorrect username or password.",
+              message: "Incorrect address or password.",
             });
           }
 
@@ -61,7 +61,7 @@ passport.use(
             310000,
             32,
             "sha256",
-            function (err, hashedPassword) {
+            (err, hashedPassword) => {
               if (err) {
                 return cb(err);
               }
@@ -69,7 +69,7 @@ passport.use(
                 !crypto.timingSafeEqual(row.hashed_password, hashedPassword)
               ) {
                 return cb(null, false, {
-                  message: "Incorrect username or password.",
+                  message: "Incorrect address or password.",
                 });
               }
               return cb(null, row);
@@ -83,7 +83,7 @@ passport.use(
 
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
-    cb(null, { id: user.id, username: user.username });
+    cb(null, { id: user.id, username: user.address });
   });
 });
 
@@ -95,6 +95,18 @@ passport.deserializeUser(function (user, cb) {
 
 app.use(bodyParser.json());
 app.use(cors({ origin: "https://localhost:3000" }));
+
+app.post(
+  "/api/login",
+  passport.authenticate("local"),
+  (req, res) => {
+    // console.log("Req");
+    // console.log(req);
+    console.log("Passport");
+    console.log(passport);
+    res.send("Logged");
+  }
+);
 
 // Get request for all other users from the same company
 app.get("/api/users/other", (req, res) => {
@@ -165,10 +177,6 @@ app.get("/api/compliments", (req, res) => {
   } else {
     res.json([]);
   }
-});
-
-app.post("/api/login", passport.authenticate("local"), (req, res) => {
-  res.json([]);
 });
 
 app.post("/api/ipfsjson", (req, res) => {

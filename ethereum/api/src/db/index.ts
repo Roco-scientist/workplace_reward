@@ -30,9 +30,9 @@ db.serialize(() => {
   db.run(
     "INSERT OR IGNORE INTO users (address, firstName, lastName, company, hashed_password, salt) VALUES (?, ?, ?, ?, ?, ?)",
     [
-      "0x3bD7736bB6feA5ebe2AC8eb7F380D0963D92d473",
-      "Jon",
-      "Smith",
+      "0x839901c21D20316b0DDcA205AAe53A1EbB886cf4",
+      "Jefe",
+      "Rodriguez",
       "1",
       crypto.pbkdf2Sync("letmein", salt, 310000, 32, "sha256"),
       salt,
