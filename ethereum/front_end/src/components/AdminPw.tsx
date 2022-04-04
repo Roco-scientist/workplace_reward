@@ -14,6 +14,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { constants } from "ethers";
+import { Eotm } from "./Eotm";
 
 export const AdminPw = () => {
   // retrieve the account which is logged in and set the address to zeros if it is not logged in
@@ -40,7 +41,7 @@ export const AdminPw = () => {
     event.preventDefault();
   };
 
-  const [authToken, setAuthToken] = useState("");
+  const [correctPassword, setCorrectPassword] = useState(false);
 
   const submitPassword = () => {
     axios
@@ -51,7 +52,9 @@ export const AdminPw = () => {
       .then((response) => {
         console.log("Response");
         console.log(response);
-        setAuthToken(response.data);
+        if (response.data === "Logged in") {
+          setCorrectPassword(true);
+        }
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -68,42 +71,52 @@ export const AdminPw = () => {
 
   const sendIsBusy = false;
 
-  return (
-    <div>
-      <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
-        <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-        <OutlinedInput
-          id="outlined-adornment-password"
-          type={values.showPassword ? "text" : "password"}
-          value={values.password}
-          onChange={handleChange}
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
-              >
-                {values.showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          }
-          label="Password"
-        />
-      </FormControl>
-      <Button variant="contained" onClick={submitPassword} sx={{ mt: 2 }}>
-        {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
-      </Button>
-      <Snackbar
-        open={passwordFail}
-        autoHideDuration={5000}
-        onClose={handleCloseSnack}
-      >
-        <Alert onClose={handleCloseSnack} severity="error">
-          Password failed! Retry
-        </Alert>
-      </Snackbar>
-    </div>
-  );
+  if (correctPassword) {
+    return (
+      <div>
+        <Eotm />
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+          <InputLabel htmlFor="outlined-adornment-password">
+            Password
+          </InputLabel>
+          <OutlinedInput
+            id="outlined-adornment-password"
+            type={values.showPassword ? "text" : "password"}
+            value={values.password}
+            onChange={handleChange}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  {values.showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
+          />
+        </FormControl>
+        <Button variant="contained" onClick={submitPassword} sx={{ mt: 2 }}>
+          {sendIsBusy ? <CircularProgress size={26} /> : "Submit"}
+        </Button>
+        <Snackbar
+          open={passwordFail}
+          autoHideDuration={5000}
+          onClose={handleCloseSnack}
+        >
+          <Alert onClose={handleCloseSnack} severity="error">
+            Password failed! Retry
+          </Alert>
+        </Snackbar>
+      </div>
+    );
+  }
 };

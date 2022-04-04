@@ -11,6 +11,10 @@ import pinataSDK from "@pinata/sdk";
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import crypto from "crypto";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import sqlite3 from "sqlite3";
+import sqliteStoreFactory from "express-session-sqlite";
 
 // User information that is used to send thanks for rewards
 export interface User {
@@ -93,20 +97,38 @@ passport.deserializeUser(function (user, cb) {
   });
 });
 
+app.use(passport.session());
 app.use(bodyParser.json());
 app.use(cors({ origin: "https://localhost:3000" }));
 
-app.post(
-  "/api/login",
-  passport.authenticate("local"),
-  (req, res) => {
-    // console.log("Req");
-    // console.log(req);
-    console.log("Passport");
-    console.log(passport);
-    res.send("Logged");
-  }
+const SQLiteStore = sqliteStoreFactory(session);
+const oneDay = 1000 * 60 * 60 * 24;
+app.use(
+  session({
+    secret: "this secret needs to be replaced",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true, maxAge: oneDay },
+    store: new SQLiteStore({
+      driver: sqlite3.Database,
+      path: "/tmp/sqlite.db",
+      ttl: 1234,
+      prefix: "sess:",
+      cleanupInterval: 300000,
+    }),
+  })
 );
+
+app.use(cookieParser());
+
+app.post("/api/login", passport.authenticate("local"), (req, res) => {
+  res.send("Logged in");
+});
+
+// app.post('/logout', (req, res) => {
+//   req.logout();
+//   res.send("Logged out")
+// });
 
 // Get request for all other users from the same company
 app.get("/api/users/other", (req, res) => {
