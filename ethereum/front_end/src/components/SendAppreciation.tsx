@@ -81,7 +81,7 @@ export const SendAppreciation = () => {
       .then((response) => setUsers(response));
 
     fetch(
-      "http://localhost:3080/api/compliments?accountAddress=" + accountAddress
+      "http://localhost:3080/api/users/compliments?accountAddress=" + accountAddress
     )
       .then((response) => response.json())
       .then((response) => setCompliments(response));

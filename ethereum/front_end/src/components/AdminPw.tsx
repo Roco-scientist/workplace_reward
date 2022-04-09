@@ -45,7 +45,7 @@ export const AdminPw = () => {
 
   const submitPassword = () => {
     axios
-      .post("http://localhost:3080/api/login", {
+      .post("http://localhost:3080/api/admin/login", {
         address: accountAddress,
         password: values.password,
       })
