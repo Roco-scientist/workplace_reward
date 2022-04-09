@@ -7,7 +7,7 @@ const ExtractJwt = passportJwt.ExtractJwt;
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
+  secretOrKey: "Replace with JWT secret",
 };
 
 // Used by the authenticated requests to deserialize the user,

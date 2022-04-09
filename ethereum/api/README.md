@@ -11,3 +11,7 @@ export PINATA_JWT=<pinata_jwt>
 ## Run
 
 `npm start`
+
+## TEST
+
+`curl -X POST  -H "Content-Type: application/json" -H "Accept:application/json" -d '{"address"="0000000","password"="letmein"}' http://localhost:3080/api/admin/login`

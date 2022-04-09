@@ -21,9 +21,9 @@ const router = express.Router();
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
   //, next) => {
-  const token = getToken({ _id: req.user._id });
+  const token = getToken({ _id: req.user.id });
   // const refreshToken = getRefreshToken({ _id: req.user._id });
-  db.get("SELECT id FROM users WHERE id = ?", req.user._id, (err, row) => {
+  db.get("SELECT rowid as id FROM users WHERE id = ?", req.user.id, (err, row) => {
     if (err) {
       res.statusCode = 500;
       res.send(err);
